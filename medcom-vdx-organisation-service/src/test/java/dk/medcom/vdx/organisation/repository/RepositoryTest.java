@@ -4,11 +4,14 @@ import javax.transaction.Transactional;
 
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import dk.medcom.vdx.organisation.configuration.DatabaseConfiguration;
 import dk.medcom.vdx.organisation.configuration.TestConfiguration;
@@ -29,4 +32,5 @@ abstract public class RepositoryTest {
 		String jdbcUrl = mysql.getJdbcUrl();
 		System.setProperty("jdbc.url", jdbcUrl);
 	}
+	
 }

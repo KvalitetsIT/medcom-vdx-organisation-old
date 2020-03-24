@@ -25,15 +25,6 @@ paths:
         - Organisation
       summary: gets a list of organisations
       description: Gets a list of organisations.
-      parameters:
-        - name: from-start-time
-          in: query
-          description: from start time, date format is yyyy-MM-dd'T'HH:mm:ssZZZ.
-          required: true
-          schema:
-            type: string
-            format: date
-          example: '2018-01-01T03:12:30%2B0100'
       responses:
         '200':
           description: Ok
