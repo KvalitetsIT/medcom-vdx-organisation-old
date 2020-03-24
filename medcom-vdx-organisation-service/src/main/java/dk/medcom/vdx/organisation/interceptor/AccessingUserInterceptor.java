@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.repository.OrganisationRepository;
-import dk.medcom.vdx.organisation.service.UserContextService;
 
 public class AccessingUserInterceptor extends HandlerInterceptorAdapter {
 

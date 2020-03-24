@@ -23,16 +23,39 @@ paths:
     get:
       tags:
         - Organisation
-      summary: gets a list of organisations
-      description: Gets a list of organisations.
+      summary: Gets a list of organisations
+      description: Gets a list of organisations
       responses:
         '200':
           description: Ok
           content:
-            application/hal+json:
+            application/json:
               schema:
                 type: array
                 items:
+                  $ref: '#/components/schemas/organisation'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    put:
+      tags:
+        - Organisation
+      summary: updates an existing organisation
+      description: Updates a specific organisation
+      requestBody:
+        description: organisation details to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
                   $ref: '#/components/schemas/organisation'
         '400':
           $ref: '#/components/responses/400'
@@ -40,6 +63,57 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'      
+        '404':
+          $ref: '#/components/responses/404'      
+        '406':
+          $ref: '#/components/responses/406'              
+  /services/organisation/{organisationId}:
+    get:
+      tags:
+        - Organisation
+      summary: Get a specific organisation
+      description: Get a specific organisation identified by its organisationId
+      parameters: 
+       - name: organisationId
+         in: path
+         required: true
+         schema:
+          type: string
+         example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'      
+        '404':
+          $ref: '#/components/responses/404'
+    delete:
+      tags:
+        - Organisation
+      summary: Deletes a specific organisation
+      description: Delete a specific organisation identified by its organisationId
+      parameters: 
+       - name: organisationId
+         in: path
+         required: true
+         schema:
+          type: string
+         example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'      
+        '404':
+          $ref: '#/components/responses/404'
 components:
   parameters:
     uuid:
@@ -91,52 +165,25 @@ components:
     organisation:
       type: object
       required:
-      - subject
-      - uuid
-      - createdBy
-      - organizedBy
-      - startTime
-      - endTime
-      - _links
+      - organisationId
+      - name
+      - poolSize
       properties:
-        subject:
+        organisationId:
+          description: The external id of the organisaton
           type: string
           maxLength: 100
-          example: Short talk about hiring new people
-        uuid:
-          type: string
-          format: uuid
-          example: 46b46a1e-a4d3-4387-87ee-a67dcaa222cb
-        createdBy:
-          $ref: '#/components/schemas/meetingUser'
-        updatedBy:
-          $ref: '#/components/schemas/meetingUser'        
-        organizedBy:
-          $ref: '#/components/schemas/meetingUser'        
-        startTime:
-          type: string
-          format: date-time
-          example: 2018-11-01T10:00:00 +0000
-        endTime:
-          type: string
-          format: date-time
-          example: 2018-11-01T10:30:00 +0000
-        description:
-          type: string
-          maxLength: 500
-          example: We need to agree on the process should be. And what deadlines we have during the next 14 days.
-        projectCode:
+          example: organisation_a
+        name:
+          description: The name of the organisation
           type: string
           maxLength: 100
-          example: PROJECT001.
-        createdTime:
-          type: string
-          format: date-time
-          example: 2018-10-01T10:00:00 +0000
-        updatedTime:
-          type: string
-          format: date-time
-          example: 2018-10-01T11:00:00 +0000
+          example: Organisation A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
     meetingUser:
       type: object
       required:

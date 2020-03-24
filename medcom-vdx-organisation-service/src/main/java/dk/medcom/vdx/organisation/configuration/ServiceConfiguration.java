@@ -6,19 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import dk.medcom.vdx.organisation.interceptor.AccessingUserInterceptor;
-import dk.medcom.vdx.organisation.service.UserContextService;
-import dk.medcom.vdx.organisation.service.impl.UserContextServiceImpl;
 
 @Configuration
 @EnableAspectJAutoProxy
-@ComponentScan({"dk.medcom.vdx.organisation.service", "dk.medcom.vdx.organisation.controller"})
+@ComponentScan({"dk.medcom.vdx.organisation.service", "dk.medcom.vdx.organisation.controller", "dk.medcom.vdx.organisation.aspect"})
 public class ServiceConfiguration implements WebMvcConfigurer {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(ServiceConfiguration.class);
@@ -36,17 +31,10 @@ public class ServiceConfiguration implements WebMvcConfigurer {
 		return new LoggingInterceptor();
 	}
 */	
-	@Bean
-	
+	@Bean	
 	public AccessingUserInterceptor userSecurityInterceptor() {
 		LOGGER.debug("Creating userSecurityInterceptor");
 		return new AccessingUserInterceptor();
 	}
 	
-	@Bean
-	@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
-	public UserContextService userContextService() {
-		UserContextServiceImpl ucs = new UserContextServiceImpl();
-		return ucs;
-	}
 }
