@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        docker  { image "maven:3-jdk-11" }
+    }
 
     stages {
         stage('Initialize') {
@@ -11,7 +13,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                echo 'Building.. ${env.GIT_COMMIT}'
+                sh 'mvn install'
             }
         }
         stage('Test') {
