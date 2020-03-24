@@ -9,6 +9,13 @@
 	</parent>
 	<artifactId>medcom-vdx-organisation-service</artifactId>
 	<dependencies>
+		<!-- VDX -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>medcom-vdx-organisation-interface</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	
 		<!-- Spring for web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -17,6 +24,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<!-- Hateoas -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
 		</dependency>
 		
 		<!-- Database -->
@@ -33,13 +46,7 @@
 			<artifactId>flyway-core</artifactId>
 		</dependency>
 
-		<!-- Hateoas -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-hateoas</artifactId>
-		</dependency>
-		
-		<!-- Test -->
+		<!-- Test tools -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
