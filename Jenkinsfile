@@ -4,7 +4,9 @@ pipeline {
     stages {
         stage('Initialize') {
             steps{
-                currentBuild.displayName = "$currentBuild.displayName-${env.GIT_COMMIT}"
+                script {
+                    currentBuild.displayName = "$currentBuild.displayName-${env.GIT_COMMIT}"
+                }
             }
         }
         stage('Build') {
