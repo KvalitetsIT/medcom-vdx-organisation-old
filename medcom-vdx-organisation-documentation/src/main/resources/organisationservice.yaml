@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: VDX Organisation API
+  description: API description for the VDX Organisation interface
+  version: "1.0.0"
+  contact:
+    email: development@kvalitetitsit.dk
+paths:
+  /info:
+    get:
+      tags:
+        - Info
+      summary: gets some generel information on the API
+      description: Use this as an initial test to see if the API is up running and replying.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/info'
+  /services/organisation:
+    get:
+      tags:
+        - Organisation
+      summary: gets a list of organisations
+      description: Gets a list of organisations.
+      parameters:
+        - name: from-start-time
+          in: query
+          description: from start time, date format is yyyy-MM-dd'T'HH:mm:ssZZZ.
+          required: true
+          schema:
+            type: string
+            format: date
+          example: '2018-01-01T03:12:30%2B0100'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/organisation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'      
+components:
+  parameters:
+    uuid:
+      name: uuid
+      in: path
+      description: the uuid for the requested information
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: 46b46a1e-a4d3-4387-87ee-a67dcaa222cb
+    id:
+      name: id
+      in: path
+      description: the id for the requested information
+      required: true
+      schema:
+        type: integer
+        format: int32
+      example: 7 
+  responses:
+    '400':
+      description: "Bad Request. This could be because: <br> * invalid date format in date format parameters/properties <br> * a uuid parameter does not have the correct format <br>  * one of the required parameters/properties are missing or is empty <br> * length of input is exeeding maximum length <br> * referenced entities like organisation, templates etc has some problems <br> (See a possible detailed error message in the in the response.)"
+    '401':
+      description: "Unauthorized. This could be because: <br> * the role of the user may not use the request (only PROVISIONER can use the scheduling-info post request and only ADMIN can use the scheduling-template post and put request) <br> * the role mapping between 'user context' and the video API does not match <br> * the user is not correct configured. It could be missing email or organisation"
+    '403':
+      description: "Forbidden. This could be because: <br> * the meeting requested does not belong the organisation of the user <br> * the meeting requested is not organized by the user <br> * The organisation of the user has not been created in the Video API"
+    '404': 
+      description: "Not Found. This could be because: <br> * the uuid being requested has been deleted <br> * the uuid being requested has never existed <br> * the id (scheduling template) being requested does not exist"
+    '406': 
+      description: "Not Acceptable. This could be because: <br> * Status of the meeting is not AWAITS_PROVISION or PROVISIONED_OK<br> * template configuration was inadequate <br> (See a possible detailed error message in the in the response.)"
+  schemas:
+    info:
+      type: object
+      properties:
+        git:
+          properties:
+            commit:
+              properties:
+                time:
+                  type: string
+                  example: "10.10.2018 @ 11:52:54 CEST"
+                id:
+                  type: string
+                  example: "97fd935"
+            branch:
+              type: string
+              example: "master"
+    organisation:
+      type: object
+      required:
+      - subject
+      - uuid
+      - createdBy
+      - organizedBy
+      - startTime
+      - endTime
+      - _links
+      properties:
+        subject:
+          type: string
+          maxLength: 100
+          example: Short talk about hiring new people
+        uuid:
+          type: string
+          format: uuid
+          example: 46b46a1e-a4d3-4387-87ee-a67dcaa222cb
+        createdBy:
+          $ref: '#/components/schemas/meetingUser'
+        updatedBy:
+          $ref: '#/components/schemas/meetingUser'        
+        organizedBy:
+          $ref: '#/components/schemas/meetingUser'        
+        startTime:
+          type: string
+          format: date-time
+          example: 2018-11-01T10:00:00 +0000
+        endTime:
+          type: string
+          format: date-time
+          example: 2018-11-01T10:30:00 +0000
+        description:
+          type: string
+          maxLength: 500
+          example: We need to agree on the process should be. And what deadlines we have during the next 14 days.
+        projectCode:
+          type: string
+          maxLength: 100
+          example: PROJECT001.
+        createdTime:
+          type: string
+          format: date-time
+          example: 2018-10-01T10:00:00 +0000
+        updatedTime:
+          type: string
+          format: date-time
+          example: 2018-10-01T11:00:00 +0000
+    meetingUser:
+      type: object
+      required:
+      - organisationId
+      - email
+      properties:
+        organisationId:
+          type: string
+          maxLength: 30
+        email:
+          type: string
+          format: email
+          maxLength: 45
