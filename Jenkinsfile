@@ -14,7 +14,7 @@ pipeline {
         stage('Build And Test') {
             steps {
                 script {
-                    def maven.image('maven:3-jdk-11')
+                    def docker.image('maven:3-jdk-11')
                     maven.pull()
                     maven.inside {
                         sh 'mvn install'
