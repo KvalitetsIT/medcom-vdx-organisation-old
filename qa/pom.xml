@@ -9,22 +9,17 @@
   <dependencies>
   	<dependency>
   		<groupId>${project.groupId}</groupId>
-  		<artifactId>medcom-vdx-organisation-interface</artifactId>
+  		<artifactId>service</artifactId>
   		<version>${project.version}</version>
   	</dependency>
   	<dependency>
   		<groupId>${project.groupId}</groupId>
-  		<artifactId>medcom-vdx-organisation-service</artifactId>
+  		<artifactId>web</artifactId>
   		<version>${project.version}</version>
   	</dependency>
   	<dependency>
   		<groupId>${project.groupId}</groupId>
-  		<artifactId>medcom-vdx-organisation-web</artifactId>
-  		<version>${project.version}</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>${project.groupId}</groupId>
-  		<artifactId>medcom-vdx-organisation-integrationtest</artifactId>
+  		<artifactId>integrationtest</artifactId>
   		<version>${project.version}</version>
   	</dependency>
   </dependencies>
