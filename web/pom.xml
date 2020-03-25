@@ -7,12 +7,12 @@
 		<artifactId>medcom-vdx-organisation</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>medcom-vdx-organisation-web</artifactId>
+	<artifactId>web</artifactId>
 	<dependencies>
 		<!-- VDX -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>medcom-vdx-organisation-service</artifactId>
+			<artifactId>service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

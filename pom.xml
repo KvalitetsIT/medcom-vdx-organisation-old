@@ -109,11 +109,10 @@
 		</plugins>
 	</build>
 	<modules>
-		<module>medcom-vdx-organisation-interface</module>
-		<module>medcom-vdx-organisation-service</module>
-		<module>medcom-vdx-organisation-web</module>
-		<module>medcom-vdx-organisation-documentation</module>
-		<module>medcom-vdx-organisation-integrationtest</module>
-		<module>medcom-vdx-organisation-qa</module>
+		<module>service</module>
+		<module>web</module>
+		<module>documentation</module>
+		<module>integrationtest</module>
+		<module>qa</module>
 	</modules>
 </project>

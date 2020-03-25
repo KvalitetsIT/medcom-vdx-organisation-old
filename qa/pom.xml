@@ -5,7 +5,7 @@
     <artifactId>medcom-vdx-organisation</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>medcom-vdx-organisation-qa</artifactId>
+  <artifactId>qa</artifactId>
   <dependencies>
   	<dependency>
   		<groupId>${project.groupId}</groupId>

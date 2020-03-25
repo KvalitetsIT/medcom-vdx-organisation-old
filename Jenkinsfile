@@ -1,5 +1,5 @@
 pipeline {
-    agent {
+    agent any {
         docker { image "maven:3-jdk-11" }
     }
 
@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://kitdocker.kvalitetsit.dk/') {
-                        docker.image("kvalitetsit/medcom-vdx-organization:${env.GIT_COMMIT}").push("${env.GIT_COMMIT}")
+                        docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}").push("${env.GIT_COMMIT}")
                     }
                 }
             }

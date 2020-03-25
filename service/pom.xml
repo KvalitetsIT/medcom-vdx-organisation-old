@@ -7,15 +7,8 @@
 		<artifactId>medcom-vdx-organisation</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>medcom-vdx-organisation-service</artifactId>
+	<artifactId>service</artifactId>
 	<dependencies>
-		<!-- VDX -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>medcom-vdx-organisation-interface</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	
 		<!-- Spring for web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

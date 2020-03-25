@@ -7,12 +7,12 @@
 		<artifactId>medcom-vdx-organisation</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>medcom-vdx-organisation-integrationtest</artifactId>
+	<artifactId>integrationtest</artifactId>
 	<dependencies>
 		<!-- VDX -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>medcom-vdx-organisation-documentation</artifactId>
+			<artifactId>documentation</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- TEST -->

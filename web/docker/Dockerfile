@@ -7,7 +7,7 @@ RUN chmod +x entrypoint.sh
 COPY configtemplates  /configtemplates
 
 RUN mkdir /app
-ADD /maven/medcom-vdx-organisation-web.jar /app/service.jar
+ADD /maven/web.jar /app/service.jar
 WORKDIR /app
 
 ENTRYPOINT [ "/entrypoint.sh" ]
