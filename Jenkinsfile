@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker  { image "maven:3-jdk-11" }
+        docker { image "maven:3-jdk-11" }
     }
 
     stages {
@@ -11,14 +11,16 @@ pipeline {
                 }
             }
         }
-        stage('Build') {
+        stage('Build And Test') {
             steps {
                 sh 'mvn install'
             }
         }
-        stage('Test') {
+        stage('Tag Docker Image And Push') {
             steps {
-                echo 'Testing.. ${env.GIT_COMMIT}'
+                docker.withRegistry('https://kitdocker.kvalitetsit.dk/') {
+                    docker.image("kvalitetsit/medcom-vdx-organization:${env.GIT_COMMIT}").push("${env.GIT_COMMIT}")
+                }
             }
         }
         stage('Deploy') {
