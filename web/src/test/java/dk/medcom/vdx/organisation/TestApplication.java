@@ -7,7 +7,7 @@ import org.testcontainers.containers.Network;
 public class TestApplication {
     public static void main(String[] args) {
         Network n = Network.newNetwork();
-        MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
+        var mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
                 .withDatabaseName("orgdb")
                 .withUsername("orguser")
                 .withPassword("secret1234")

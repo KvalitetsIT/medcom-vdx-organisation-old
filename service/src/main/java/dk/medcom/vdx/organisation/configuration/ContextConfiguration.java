@@ -14,8 +14,6 @@ import dk.medcom.vdx.organisation.context.impl.UserContextServiceImpl;
 
 @Configuration
 public class ContextConfiguration {
-
-	
 	@Value("${usercontext.header.name}")
 	String userContextHeaderName;
 

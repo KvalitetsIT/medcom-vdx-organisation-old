@@ -13,7 +13,6 @@ import dk.medcom.vdx.organisation.interceptor.AccessingUserInterceptor;
 
 @Configuration
 @EnableAspectJAutoProxy
-@ComponentScan({"dk.medcom.vdx.organisation.service", "dk.medcom.vdx.organisation.controller", "dk.medcom.vdx.organisation.aspect"})
 public class ServiceConfiguration implements WebMvcConfigurer {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(ServiceConfiguration.class);
