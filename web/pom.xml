@@ -31,7 +31,7 @@
 				<configuration>
 					<images>
 						<image>
-							<name>kvalitetsit/medcom-vdx-organisation-web</name>
+							<name>kvalitetsit/medcom-vdx-organisation</name>
 							<build>
 								<tags>
 									<tag>dev</tag>
