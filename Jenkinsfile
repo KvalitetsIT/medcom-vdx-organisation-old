@@ -17,6 +17,9 @@ pipeline {
                     maven.inside {
                         sh 'mvn install'
                     }
+
+                    junit '**/target/surefire-reports/*.xml'
+                    jacoco changeBuildStatus: true, maximumLineCoverage: '0', minimumLineCoverage: '0', exclusionPattern: '**/some/pattern**/*.*'
                 }
             }
         }
