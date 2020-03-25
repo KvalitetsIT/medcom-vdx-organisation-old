@@ -18,8 +18,10 @@ pipeline {
         }
         stage('Tag Docker Image And Push') {
             steps {
-                docker.withRegistry('https://kitdocker.kvalitetsit.dk/') {
-                    docker.image("kvalitetsit/medcom-vdx-organization:${env.GIT_COMMIT}").push("${env.GIT_COMMIT}")
+                script {
+                    docker.withRegistry('https://kitdocker.kvalitetsit.dk/') {
+                        docker.image("kvalitetsit/medcom-vdx-organization:${env.GIT_COMMIT}").push("${env.GIT_COMMIT}")
+                    }
                 }
             }
         }
