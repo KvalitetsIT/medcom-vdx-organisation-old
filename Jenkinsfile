@@ -1,7 +1,5 @@
 pipeline {
     agent any
-        docker { image "maven:3-jdk-11" }
-
 
     stages {
         stage('Initialize') {
