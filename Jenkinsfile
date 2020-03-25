@@ -1,7 +1,7 @@
 pipeline {
-    agent any {
+    agent any
         docker { image "maven:3-jdk-11" }
-    }
+
 
     stages {
         stage('Initialize') {
@@ -13,7 +13,13 @@ pipeline {
         }
         stage('Build And Test') {
             steps {
-                sh 'mvn install'
+                script {
+                    def maven.image('maven:3-jdk-11')
+                    maven.pull()
+                    maven.inside {
+                        sh 'mvn install'
+                    }
+                }
             }
         }
         stage('Tag Docker Image And Push') {
