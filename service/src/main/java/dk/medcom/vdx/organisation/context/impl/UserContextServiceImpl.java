@@ -31,18 +31,21 @@ public class UserContextServiceImpl implements UserContextService {
 
 	private String userAttributesOrgKey;
 
+	private List<String> userRoleMonitorValues;
+
 	private List<String> userRoleAdminValues;
 
 	private List<String> userRoleUserValues;
 
 	private SessionData cached;
 	
-	public UserContextServiceImpl(String userContextHeaderName, String userAttributesOrgKey, String userAttributesRoleKey, List<String> userRoleAdminValues, List<String> userRoleUserValues) {
+	public UserContextServiceImpl(String userContextHeaderName, String userAttributesOrgKey, String userAttributesRoleKey, List<String> userRoleAdminValues, List<String> userRoleUserValues, List<String> userRoleMonitorValues) {
 		this.userContextHeaderName = userContextHeaderName;
 		this.userAttributesRoleKey = userAttributesRoleKey;
 		this.userRoleAdminValues = userRoleAdminValues;
 		this.userRoleUserValues = userRoleUserValues;
 		this.userAttributesOrgKey = userAttributesOrgKey;
+		this.userRoleMonitorValues = userRoleMonitorValues;
 	}
 	
 	@Override
@@ -72,6 +75,9 @@ public class UserContextServiceImpl implements UserContextService {
 				}
 				if (userRoleUserValues.contains(userRoleFromContext)) {
 					result.add(UserRole.USER);
+				}
+				if(userRoleMonitorValues.contains(userRoleFromContext)) {
+					result.add(UserRole.MONITOR);
 				}
 			}
 			if (result.isEmpty()) {

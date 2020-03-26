@@ -40,11 +40,4 @@ public class OrganisationController {
 		
 		return organisationDtos;
 	}
-
-	@RequestMapping(value = "/temp", method = RequestMethod.GET)
-	public String erstatMedFeksInfo() {
-		
-		return "TODO";
-	}
-
 }

@@ -23,6 +23,7 @@ public class AbstractIntegrationTest {
 	public static final String TEST_ROLE_ADMIN = "admin";
 	public static final String TEST_ROLE_USER_1 = "justuser";
 	public static final String TEST_ROLE_USER_2 = "user";
+	public static final String TEST_ROLE_MONITOR = "monitor";
 	
 	public static final String TEST_ORGANISATION_A = "org-a";
 	public static final String TEST_ORGANISATION_B = "org-b";
@@ -47,7 +48,7 @@ public class AbstractIntegrationTest {
 		attachLogger(mysql, mysqlLogger);
 
 		// OrganisationsAPI
-		GenericContainer organisationService = new GenericContainer<>("kvalitetsit/medcom-vdx-organisation-web:dev")
+		GenericContainer organisationService = new GenericContainer<>("kvalitetsit/medcom-vdx-organisation:dev")
 				.withNetwork(dockerNetwork)
 				.withNetworkAliases("organisation")
 				.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
@@ -58,15 +59,15 @@ public class AbstractIntegrationTest {
 				.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
 				.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
 				.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
+				.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
 				.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
 
 				.withExposedPorts(8080)
-				.waitingFor(Wait.forHttp("/temp").forStatusCode(200)); //TODO: Bruge info-url
+				.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
 		organisationService.start();
 		attachLogger(organisationService, organisationLogger);
 
 		apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
-		
 	}
 
 	private static void attachLogger(GenericContainer container, Logger logger) {
@@ -82,37 +83,39 @@ public class AbstractIntegrationTest {
 	protected void setUserContext(ApiClient apiClient, String[] roles) {
 		setUserContext(apiClient, roles, null);
 	}
-	
-	protected void setUserContext(ApiClient apiClient, String[] roles, String org) {
-		
+
+	protected String getEncodedUserContext(String[] roles, String org) {
 		StringBuffer sessionData = new StringBuffer();
 		sessionData.append("{");
-			sessionData.append("\"UserAttributes\": { ");
-			boolean firstAttr = true;
-				if (roles != null && roles.length > 0) {
-					firstAttr = false;
-					sessionData.append("\""+TEST_USER_ATTRIBUTES_ROLE_KEY+"\": [");
-						boolean firstRole = true;
-						for (String role : roles) {
-							sessionData.append("\""+role+"\"");
-							if (!firstRole) {
-								sessionData.append(",");
-							}
-							firstRole = false;
-						}
-					sessionData.append("]");
+		sessionData.append("\"UserAttributes\": { ");
+		boolean firstAttr = true;
+		if (roles != null && roles.length > 0) {
+			firstAttr = false;
+			sessionData.append("\""+TEST_USER_ATTRIBUTES_ROLE_KEY+"\": [");
+			boolean firstRole = true;
+			for (String role : roles) {
+				sessionData.append("\""+role+"\"");
+				if (!firstRole) {
+					sessionData.append(",");
 				}
-				if (org != null) {
-					if (!firstAttr) {
-						sessionData.append(",");
-					}
-					sessionData.append("\""+TEST_USER_ATTRIBUTES_ORG_KEY+"\": [\""+org+"\"]");
-					firstAttr = false;
-				}
-			sessionData.append("}");
+				firstRole = false;
+			}
+			sessionData.append("]");
+		}
+		if (org != null) {
+			if (!firstAttr) {
+				sessionData.append(",");
+			}
+			sessionData.append("\""+TEST_USER_ATTRIBUTES_ORG_KEY+"\": [\""+org+"\"]");
+			firstAttr = false;
+		}
+		sessionData.append("}");
 		sessionData.append("}");
 		byte[] sessionDataBytes = sessionData.toString().getBytes();
-		String value = Base64.getEncoder().encodeToString(sessionDataBytes);
-		apiClient.addDefaultHeader(TEST_AUTH_HEADER, value);		
+		return Base64.getEncoder().encodeToString(sessionDataBytes);
+	}
+
+	protected void setUserContext(ApiClient apiClient, String[] roles, String org) {
+		apiClient.addDefaultHeader(TEST_AUTH_HEADER, getEncodedUserContext(roles, org));
 	}
 }
