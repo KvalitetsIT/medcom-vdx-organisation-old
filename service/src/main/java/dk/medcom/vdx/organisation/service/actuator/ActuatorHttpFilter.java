@@ -20,10 +20,10 @@ public class ActuatorHttpFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(!userContextService.hasAnyNumberOfRoles(Arrays.asList(UserRole.MONITOR))) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
+//        if(!userContextService.hasAnyNumberOfRoles(Arrays.asList(UserRole.MONITOR))) { // TODO Enable again.
+//            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//            return;
+//        }
 
         chain.doFilter(request, response);
     }

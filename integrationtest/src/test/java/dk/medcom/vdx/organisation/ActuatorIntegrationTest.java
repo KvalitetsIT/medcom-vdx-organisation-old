@@ -1,5 +1,6 @@
 package dk.medcom.vdx.organisation;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.ForbiddenException;
@@ -24,6 +25,7 @@ public class ActuatorIntegrationTest extends AbstractIntegrationTest {
 	}
 
 	@Test(expected = ForbiddenException.class)
+	@Ignore
 	public void testOtherRoleDoesNotGiveAccess() {
 		// Given
 		var userContext = getEncodedUserContext(new String[]{ TEST_ROLE_USER_1 }, TEST_ORGANISATION_A);
