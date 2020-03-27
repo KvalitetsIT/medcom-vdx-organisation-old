@@ -31,4 +31,4 @@ fi
 
 envsubst < /configtemplates/logback.xml > /app/logback-spring.xml
 
-java $JVM_OPTS -jar service.jar
+exec java $JVM_OPTS -jar service.jar
