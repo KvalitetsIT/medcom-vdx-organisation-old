@@ -1,4 +1,4 @@
-#! /bin/ash
+#! /bin/bash
 if [ "$CONTAINER_TIMEZONE" = "" ]
 then
    echo "Using default timezone"
@@ -28,7 +28,5 @@ if [[ -z $logging_config ]]; then
   echo "Default logging_config=/app/logback-spring.xml"
   export logging_config="/app/logback-spring.xml"
 fi
-
-envsubst < /configtemplates/logback.xml > /app/logback-spring.xml
 
 exec java $JVM_OPTS -jar service.jar

@@ -62,6 +62,8 @@ public class AbstractIntegrationTest {
 				.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
 				.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
 
+				.withEnv("LOG_LEVEL", "DEBUG")
+
 				.withExposedPorts(8080)
 				.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
 		organisationService.start();

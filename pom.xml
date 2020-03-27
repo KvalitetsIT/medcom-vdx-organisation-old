@@ -37,6 +37,12 @@
 				<artifactId>flyway-core</artifactId>
 				<version>6.3.1</version>
 			</dependency>
+			<!-- logback json encoder -->
+			<dependency>
+				<groupId>net.logstash.logback</groupId>
+				<artifactId>logstash-logback-encoder</artifactId>
+				<version>6.3</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>
