@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import dk.medcom.vdx.organisation.context.UserContextService;
-import dk.medcom.vdx.organisation.repository.OrganisationRepository;
+import dk.medcom.vdx.organisation.dao.OrganisationDao;
 
 public class AccessingUserInterceptor extends HandlerInterceptorAdapter {
 
@@ -19,7 +19,7 @@ public class AccessingUserInterceptor extends HandlerInterceptorAdapter {
 	UserContextService userContextService;
 
 	@Autowired
-	OrganisationRepository organisationRepository;
+	OrganisationDao organisationRepository;
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

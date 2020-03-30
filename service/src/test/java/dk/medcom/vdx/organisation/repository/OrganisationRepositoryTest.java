@@ -8,85 +8,21 @@ import java.util.Optional;
 
 import javax.annotation.Resource;
 
+import dk.medcom.vdx.organisation.dao.JdbcOrganisationDao;
+import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dk.medcom.vdx.organisation.dao.Organisation;
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-
+@RunWith(SpringJUnit4ClassRunner.class)
 public class OrganisationRepositoryTest extends RepositoryTest {
 
-	@Resource
-    private OrganisationRepository subject;
-	
-	@Test
-	public void testCreateOrganisation() {
-		
-		// Given
-		String organisationId = "Company 77";
-		String name = "Company name 77";
-		
-		Organisation organisation = new Organisation();
-		organisation.setOrganisationId(organisationId);
-		organisation.setPoolSize(10);
-		organisation.setName(name);
-
-		// When
-		organisation = subject.save(organisation);
-		
-		// Then
-		Assert.assertNotNull(organisation);
-		Assert.assertNotNull(organisation.getId());
-		assertEquals(organisationId,  organisation.getOrganisationId());
-		assertEquals(name,  organisation.getName());
-		assertEquals(name,  organisation.toString());
-		assertEquals(10, organisation.getPoolSize().longValue());
-	}
-	
-	@Test
-	public void testFindAllOrganisations() {
-		// Given
-		
-		// When
-		Iterable<Organisation> organisations = subject.findAll();
-		
-		// Then
-		Assert.assertNotNull(organisations);
-		int numberOfOrganisations = 0;
-		for (Organisation organisation : organisations) {
-			Assert.assertNotNull(organisation);
-			numberOfOrganisations++;
-		}
-		assertEquals(7, numberOfOrganisations);
-	}
-	
-	@Test
-	public void testFindOrganisationWithExistingId() {
-		// Given
-		Long id = 1L;
-		
-		// When
-		Optional<Organisation> organisation = subject.findById(id);
-		
-		// Then
-		Assert.assertTrue(organisation.isPresent());
-		assertEquals(id, organisation.get().getId());
-		assertEquals("company 1", organisation.get().getOrganisationId());
-		assertEquals("company name 1", organisation.get().getName());
-		Assert.assertNull(organisation.get().getPoolSize());
-	}
-
-	@Test
-	public void testFindOrganisationWithNonExistingId() {
-		// Given
-		Long id = 1999L;
-		
-		// When
-		Optional<Organisation> organisation = subject.findById(id);
-		
-		// Then
-		Assert.assertTrue(organisation.isEmpty());
-	}
+	@Autowired
+    private OrganisationDao subject;
 
 	@Test
 	public void testFindOrganisationByExistingOrganisationId() {

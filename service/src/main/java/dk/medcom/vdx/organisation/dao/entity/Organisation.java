@@ -1,16 +1,6 @@
-package dk.medcom.vdx.organisation.dao;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+package dk.medcom.vdx.organisation.dao.entity;
 
-@Entity
-@Table(name = "organisation")
 public class Organisation {
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 
 	private String organisationId;
