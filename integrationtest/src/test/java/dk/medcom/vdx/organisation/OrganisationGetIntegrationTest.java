@@ -29,7 +29,7 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		try {
 
 			// When
-			subject.servicesOrganisationGet();
+			subject.servicesV1OrganisationGet();
 		} catch (ApiException e) {
 
 			// Then
@@ -47,7 +47,7 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		try {
 
 			// When
-			subject.servicesOrganisationGet();
+			subject.servicesV1OrganisationGet();
 		} catch (ApiException e) {
 
 			// Then
@@ -65,7 +65,7 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		try {
 
 			// When
-			subject.servicesOrganisationGet();
+			subject.servicesV1OrganisationGet();
 		} catch (ApiException e) {
 
 			// Then
@@ -81,7 +81,7 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		setUserContext(apiClient, new String[]{ TEST_ROLE_USER_1 }, TEST_ORGANISATION_A);
 
 		// When
-		subject.servicesOrganisationGet();
+		subject.servicesV1OrganisationGet();
 		
 		// Then
 	}

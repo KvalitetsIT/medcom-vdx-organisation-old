@@ -15,7 +15,7 @@ import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
-import dk.medcom.vdx.organisation.model.OrganisationDto;
+import dk.medcom.vdx.organisation.model.v1.OrganisationDto;
 
 @RestController
 public class OrganisationController {
@@ -26,8 +26,8 @@ public class OrganisationController {
 	UserContextService userContextService;
 	
 	@APISecurityAnnotation({ UserRole.USER, UserRole.ADMIN })
-	@RequestMapping(value = "/services/organisation", method = RequestMethod.GET)
-	public List<OrganisationDto> getOrganisations() throws PermissionDeniedException, RessourceNotFoundException {
+	@RequestMapping(value = "/services/v1/organisation", method = RequestMethod.GET)
+	public List<OrganisationDto> getOrganisations() throws PermissionDeniedException {
 		LOGGER.info("*************** 1");
 		
 		String userOrganisation = userContextService.getOrganisation();
@@ -35,9 +35,7 @@ public class OrganisationController {
 		if (userOrganisation == null) {
 			throw new PermissionDeniedException();
 		}
-		
-		List<OrganisationDto> organisationDtos = new LinkedList<>();
-		
-		return organisationDtos;
+
+		return new LinkedList<>();
 	}
 }

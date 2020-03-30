@@ -19,7 +19,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/info'
-  /services/organisation:
+  /services/v1/organisation:
     get:
       tags:
         - Organisation
@@ -67,7 +67,7 @@ paths:
           $ref: '#/components/responses/404'      
         '406':
           $ref: '#/components/responses/406'              
-  /services/organisation/{organisationId}:
+  /services/v1/organisation/{organisationId}:
     get:
       tags:
         - Organisation
