@@ -16,12 +16,6 @@ public class TestApplication {
         mysql.start();
         String jdbcUrl = mysql.getJdbcUrl();
         System.setProperty("jdbc.url", jdbcUrl);
-        System.setProperty("usercontext.header.name", "X-Test-Auth");
-        System.setProperty("userattributes.role.key", "UserRoles");
-        System.setProperty("userrole.admin.values", "c");
-        System.setProperty("userrole.user.values", "b");
-        System.setProperty("userattributes.org.key", "Org");
-        System.setProperty("userrole.monitor.values", "monitor");
 
         SpringApplication.run(Application.class, args);
     }

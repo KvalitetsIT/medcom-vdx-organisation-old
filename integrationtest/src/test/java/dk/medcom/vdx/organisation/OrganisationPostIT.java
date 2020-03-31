@@ -65,4 +65,25 @@ public class OrganisationPostIT extends AbstractIntegrationTest {
 		Assert.assertEquals(result.getName(), organisation.getName());
 		Assert.assertEquals(result.getPoolSize(), organisation.getPoolSize());
 	}
+	
+	@Test(expected = ApiException.class)
+	public void testPostOrganisationsWithAdminDuplicateShortName() throws ApiException {
+
+		// Given
+		setUserContext(apiClient, new String[]{ TEST_ROLE_ADMIN }, TEST_ORGANISATION_A);
+		Organisation organisation = new Organisation();
+		organisation.setShortName(TEST_ORGANISATION_A);
+		organisation.setName("Org");
+		organisation.setPoolSize(100);
+
+		// When
+		try {
+			subject.servicesOrganisationPost(organisation);
+		} catch (ApiException e) {
+
+			// Then
+			Assert.assertEquals(HttpCodes.CONFLICT, e.getCode());
+			throw e;
+		}
+	}
 }

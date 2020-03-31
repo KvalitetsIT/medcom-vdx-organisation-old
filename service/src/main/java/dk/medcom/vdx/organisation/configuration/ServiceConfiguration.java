@@ -10,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
-import dk.medcom.vdx.organisation.interceptor.AccessingUserInterceptor;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
 import dk.medcom.vdx.organisation.service.FindOrganisationService;
 import dk.medcom.vdx.organisation.service.impl.CreateOrUpdateOrganisationServiceImpl;
@@ -25,8 +24,6 @@ public class ServiceConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		LOGGER.debug("Adding interceptors");
-//		registry.addInterceptor(loggingInterceptor());
-		registry.addInterceptor(userSecurityInterceptor());
 	} 
 
 /*	@Bean
@@ -35,12 +32,7 @@ public class ServiceConfiguration implements WebMvcConfigurer {
 		return new LoggingInterceptor();
 	}
 */	
-	@Bean	
-	public AccessingUserInterceptor userSecurityInterceptor() {
-		LOGGER.debug("Creating userSecurityInterceptor");
-		return new AccessingUserInterceptor();
-	}
-
+	
 	@Bean
 	public FindOrganisationService findOrganisationService(UserContextService userContextService, OrganisationDao organisationDao) {
 		return new FindOrganisationServiceImpl(userContextService, organisationDao);
