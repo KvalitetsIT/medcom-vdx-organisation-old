@@ -4,19 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
-import java.util.Optional;
 
-import javax.annotation.Resource;
-
-import dk.medcom.vdx.organisation.dao.JdbcOrganisationDao;
-import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import org.junit.Assert;
 import org.junit.Test;
-
-import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import dk.medcom.vdx.organisation.dao.OrganisationDao;
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class OrganisationRepositoryTest extends RepositoryTest {
@@ -30,7 +26,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		String existingOrg = "Company 1";
 		
 		// When
-		Organisation organisation = subject.findByOrganisationId(existingOrg);
+		Organisation organisation = subject.findByOrganisationShortName(existingOrg);
 		
 		// Then
 		Assert.assertNotNull(organisation);
@@ -42,7 +38,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		String existingOrg = "nonexisting-org";
 		
 		// When
-		Organisation organisation = subject.findByOrganisationId(existingOrg);
+		Organisation organisation = subject.findByOrganisationShortName(existingOrg);
 		
 		// Then
 		Assert.assertNull(organisation);
@@ -54,7 +50,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		String existingOrg = "pool-test-org";
 
 		// When
-		Organisation organisation = subject.findByOrganisationId(existingOrg);
+		Organisation organisation = subject.findByOrganisationShortName(existingOrg);
 
 		// Then
 		Assert.assertNotNull(organisation);

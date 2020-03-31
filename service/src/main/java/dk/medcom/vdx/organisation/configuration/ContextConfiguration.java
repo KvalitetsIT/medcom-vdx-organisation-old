@@ -32,10 +32,13 @@ public class ContextConfiguration {
 	@Value("${userrole.monitor.values}")
 	private List<String> userRoleMonitorValues;
 
+	@Value("${userrole.provisioner.values}")
+	private List<String> userRoleProvisionerValues;
+
 	@Bean
 	@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 	public UserContextService userContextService() {
-		UserContextServiceImpl ucs = new UserContextServiceImpl(userContextHeaderName, userAttributesOrgKey, userAttributesRoleKey, userRoleAdminValues, userRoleUserValues, userRoleMonitorValues);
+		UserContextServiceImpl ucs = new UserContextServiceImpl(userContextHeaderName, userAttributesOrgKey, userAttributesRoleKey, userRoleAdminValues, userRoleUserValues, userRoleMonitorValues, userRoleProvisionerValues);
 		return ucs;
 	}
 }

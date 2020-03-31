@@ -24,6 +24,7 @@ public class AbstractIntegrationTest {
 	public static final String TEST_ROLE_USER_1 = "justuser";
 	public static final String TEST_ROLE_USER_2 = "user";
 	public static final String TEST_ROLE_MONITOR = "monitor";
+	public static final String TEST_ROLE_PROVISIONER = "provisioner";
 	
 	public static final String TEST_ORGANISATION_A = "org-a";
 	public static final String TEST_ORGANISATION_B = "org-b";
@@ -48,7 +49,7 @@ public class AbstractIntegrationTest {
 		attachLogger(mysql, mysqlLogger);
 
 		// OrganisationsAPI
-		GenericContainer organisationService = new GenericContainer<>("kvalitetsit/medcom-vdx-organisation:dev")
+		GenericContainer organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
 				.withNetwork(dockerNetwork)
 				.withNetworkAliases("organisation")
 				.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
@@ -60,7 +61,12 @@ public class AbstractIntegrationTest {
 				.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
 				.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
 				.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
+				.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
 				.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
+
+				// Contains integrationtestdata
+				.withEnv("LOADER_PATH", "/app/lib")
+				.withEnv("JVM_OPTS", "-cp integrationtest.jar")
 
 				.withEnv("LOG_LEVEL", "DEBUG")
 

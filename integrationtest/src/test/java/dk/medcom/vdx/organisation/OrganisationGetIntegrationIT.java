@@ -1,14 +1,17 @@
 package dk.medcom.vdx.organisation;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.OrganisationApi;
+import org.openapitools.client.model.Organisation;
 
 
-public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
+public class OrganisationGetIntegrationIT extends AbstractIntegrationTest {
 
 
 	OrganisationApi subject;
@@ -29,7 +32,7 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		try {
 
 			// When
-			subject.servicesV1OrganisationGet();
+			subject.servicesOrganisationGet();
 		} catch (ApiException e) {
 
 			// Then
@@ -47,7 +50,7 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		try {
 
 			// When
-			subject.servicesV1OrganisationGet();
+			subject.servicesOrganisationGet();
 		} catch (ApiException e) {
 
 			// Then
@@ -65,11 +68,11 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		try {
 
 			// When
-			subject.servicesV1OrganisationGet();
+			subject.servicesOrganisationGet();
 		} catch (ApiException e) {
 
 			// Then
-			Assert.assertEquals("Expected forbidden response", 403, e.getCode());
+			Assert.assertEquals("Expected forbidden response", 401, e.getCode());
 			throw e;
 		}
 	}
@@ -81,8 +84,25 @@ public class OrganisationGetIntegrationTest extends AbstractIntegrationTest {
 		setUserContext(apiClient, new String[]{ TEST_ROLE_USER_1 }, TEST_ORGANISATION_A);
 
 		// When
-		subject.servicesV1OrganisationGet();
+		List<Organisation> orgs = subject.servicesOrganisationGet();
 		
 		// Then
+		Assert.assertNotNull(orgs);
+		Assert.assertEquals(1, orgs.size());
+		Assert.assertEquals(orgs.get(0).getShortName(), TEST_ORGANISATION_A);
+	}
+	
+	@Test
+	public void testGetOrganisationFromShortWithUser() throws ApiException {
+
+		// Given
+		setUserContext(apiClient, new String[]{ TEST_ROLE_USER_1 }, TEST_ORGANISATION_A);
+
+		// When
+		Organisation org = subject.servicesOrganisationShortNameGet(TEST_ORGANISATION_A);
+		
+		// Then
+		Assert.assertNotNull(org);
+		Assert.assertEquals(org.getShortName(), TEST_ORGANISATION_A);
 	}
 }

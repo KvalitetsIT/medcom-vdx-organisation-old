@@ -19,7 +19,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/info'
-  /services/v1/organisation:
+  /services/organisation:
     get:
       tags:
         - Organisation
@@ -67,14 +67,41 @@ paths:
           $ref: '#/components/responses/404'      
         '406':
           $ref: '#/components/responses/406'              
-  /services/v1/organisation/{organisationId}:
+    post:
+      tags:
+        - Organisation
+      summary: Creates a new organisation
+      description: Creates a new organisation
+      requestBody:
+        description: organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/organisation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'      
+        '404':
+          $ref: '#/components/responses/404'      
+  /services/organisation/{shortName}:
     get:
       tags:
         - Organisation
       summary: Get a specific organisation
-      description: Get a specific organisation identified by its organisationId
+      description: Get a specific organisation identified by its short name
       parameters: 
-       - name: organisationId
+       - name: shortName
          in: path
          required: true
          schema:
@@ -97,9 +124,9 @@ paths:
       tags:
         - Organisation
       summary: Deletes a specific organisation
-      description: Delete a specific organisation identified by its organisationId
+      description: Delete a specific organisation identified by its short name
       parameters: 
-       - name: organisationId
+       - name: shortName
          in: path
          required: true
          schema:
@@ -143,8 +170,6 @@ components:
       description: "Forbidden. This could be because: <br> * the meeting requested does not belong the organisation of the user <br> * the meeting requested is not organized by the user <br> * The organisation of the user has not been created in the Video API"
     '404': 
       description: "Not Found. This could be because: <br> * the uuid being requested has been deleted <br> * the uuid being requested has never existed <br> * the id (scheduling template) being requested does not exist"
-    '406': 
-      description: "Not Acceptable. This could be because: <br> * Status of the meeting is not AWAITS_PROVISION or PROVISIONED_OK<br> * template configuration was inadequate <br> (See a possible detailed error message in the in the response.)"
   schemas:
     info:
       type: object
@@ -165,12 +190,12 @@ components:
     organisation:
       type: object
       required:
-      - organisationId
+      - shortName
       - name
       - poolSize
       properties:
-        organisationId:
-          description: The external id of the organisaton
+        shortName:
+          description: The short name that uniquely identifies an organisation
           type: string
           maxLength: 100
           example: organisation_a
@@ -178,7 +203,7 @@ components:
           description: The name of the organisation
           type: string
           maxLength: 100
-          example: Organisation A
+          example: Organisation with the full name A
         poolSize:
           description: The meeting room pool size for the organisation
           type: integer

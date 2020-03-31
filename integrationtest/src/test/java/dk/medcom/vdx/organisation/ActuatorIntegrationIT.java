@@ -10,7 +10,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import static org.junit.Assert.assertNotNull;
 
-public class ActuatorIntegrationTest extends AbstractIntegrationTest {
+public class ActuatorIntegrationIT extends AbstractIntegrationTest {
 	@Test
 	public void testMonitorRoleGivesAccess() {
 		// Given

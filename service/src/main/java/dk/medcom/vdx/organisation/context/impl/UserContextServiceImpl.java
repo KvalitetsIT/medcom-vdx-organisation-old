@@ -33,19 +33,22 @@ public class UserContextServiceImpl implements UserContextService {
 
 	private List<String> userRoleMonitorValues;
 
+	private List<String> userRoleProvisionerValues;
+
 	private List<String> userRoleAdminValues;
 
 	private List<String> userRoleUserValues;
 
 	private SessionData cached;
 	
-	public UserContextServiceImpl(String userContextHeaderName, String userAttributesOrgKey, String userAttributesRoleKey, List<String> userRoleAdminValues, List<String> userRoleUserValues, List<String> userRoleMonitorValues) {
+	public UserContextServiceImpl(String userContextHeaderName, String userAttributesOrgKey, String userAttributesRoleKey, List<String> userRoleAdminValues, List<String> userRoleUserValues, List<String> userRoleMonitorValues, List<String> userRoleProvisionerValues) {
 		this.userContextHeaderName = userContextHeaderName;
 		this.userAttributesRoleKey = userAttributesRoleKey;
 		this.userRoleAdminValues = userRoleAdminValues;
 		this.userRoleUserValues = userRoleUserValues;
 		this.userAttributesOrgKey = userAttributesOrgKey;
 		this.userRoleMonitorValues = userRoleMonitorValues;
+		this.userRoleProvisionerValues = userRoleProvisionerValues;
 	}
 	
 	@Override
@@ -79,6 +82,9 @@ public class UserContextServiceImpl implements UserContextService {
 				if(userRoleMonitorValues.contains(userRoleFromContext)) {
 					result.add(UserRole.MONITOR);
 				}
+				if(userRoleProvisionerValues.contains(userRoleFromContext)) {
+					result.add(UserRole.PROVISIONER);
+				}
 			}
 			if (result.isEmpty()) {
 				result.add(UserRole.DEFAULT);
@@ -89,7 +95,6 @@ public class UserContextServiceImpl implements UserContextService {
 		
 	}
 
-	@Override
 	public SessionData getSessionData() {
 		if (cached == null) {
 			HttpServletRequest servletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();

@@ -1,7 +1,8 @@
 package dk.medcom.vdx.organisation.configuration;
 
-import dk.medcom.vdx.organisation.dao.JdbcOrganisationDao;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
+import dk.medcom.vdx.organisation.dao.impl.JdbcOrganisationDao;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
