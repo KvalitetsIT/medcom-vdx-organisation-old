@@ -1,6 +1,6 @@
 CREATE TABLE organisation (
   id bigint(20) NOT NULL AUTO_INCREMENT,
-  organisation_id varchar(30) NOT NULL,
+  organisation_id varchar(50) NOT NULL,
   pool_size int(4) null,
   name varchar(100),
   PRIMARY KEY (id),

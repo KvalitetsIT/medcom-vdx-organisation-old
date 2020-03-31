@@ -11,7 +11,7 @@ import org.openapitools.client.api.OrganisationApi;
 import org.openapitools.client.model.Organisation;
 
 
-public class OrganisationGetIntegrationIT extends AbstractIntegrationTest {
+public class OrganisationGetIT extends AbstractIntegrationTest {
 
 
 	OrganisationApi subject;
@@ -36,7 +36,7 @@ public class OrganisationGetIntegrationIT extends AbstractIntegrationTest {
 		} catch (ApiException e) {
 
 			// Then
-			Assert.assertEquals("Expected unauthorized response", 401, e.getCode());
+			Assert.assertEquals(HttpCodes.FORBIDDEN, e.getCode());
 			throw e;
 		}
 	}
@@ -54,7 +54,7 @@ public class OrganisationGetIntegrationIT extends AbstractIntegrationTest {
 		} catch (ApiException e) {
 
 			// Then
-			Assert.assertEquals("Expected unauthorized response", 401, e.getCode());
+			Assert.assertEquals(HttpCodes.FORBIDDEN, e.getCode());
 			throw e;
 		}
 	}
@@ -72,7 +72,7 @@ public class OrganisationGetIntegrationIT extends AbstractIntegrationTest {
 		} catch (ApiException e) {
 
 			// Then
-			Assert.assertEquals("Expected forbidden response", 401, e.getCode());
+			Assert.assertEquals(HttpCodes.FORBIDDEN, e.getCode());
 			throw e;
 		}
 	}

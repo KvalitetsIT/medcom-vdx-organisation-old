@@ -11,7 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.interceptor.AccessingUserInterceptor;
+import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
 import dk.medcom.vdx.organisation.service.FindOrganisationService;
+import dk.medcom.vdx.organisation.service.impl.CreateOrUpdateOrganisationServiceImpl;
 import dk.medcom.vdx.organisation.service.impl.FindOrganisationServiceImpl;
 
 @Configuration
@@ -43,4 +45,10 @@ public class ServiceConfiguration implements WebMvcConfigurer {
 	public FindOrganisationService findOrganisationService(UserContextService userContextService, OrganisationDao organisationDao) {
 		return new FindOrganisationServiceImpl(userContextService, organisationDao);
 	}
+	
+	@Bean
+	public CreateOrUpdateOrganisationService createOrUpdateOrganisationService(UserContextService userContextService, OrganisationDao organisationDao) {
+		return new CreateOrUpdateOrganisationServiceImpl(userContextService, organisationDao);
+	}
+
 }

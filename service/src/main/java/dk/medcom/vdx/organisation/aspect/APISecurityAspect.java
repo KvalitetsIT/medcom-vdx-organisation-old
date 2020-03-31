@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserRole;
-import dk.medcom.vdx.organisation.exceptions.UnauthorizedException;
+import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 
 @Aspect
 @Component
@@ -34,12 +34,12 @@ public class APISecurityAspect {
 		List<UserRole> allowed = Arrays.asList(allowedUserRoles);
 
 		if (!userService.hasAnyNumberOfRoles(allowed)) {
-			throw new UnauthorizedException("The calling user does not have any of the required roles: "+allowedUserRoles);
+			throw new PermissionDeniedException("The calling user does not have any of the required roles: "+allowedUserRoles);
 		}
 
 		String userOrganisation = userService.getOrganisation();
 		if ((userOrganisation == null || userOrganisation.strip().length() == 0) && !userService.hasAnyNumberOfRoles(provisioners)) {
-			throw new UnauthorizedException("Only provisioners allowed to call without specifying organisation");
+			throw new PermissionDeniedException("Only provisioners allowed to call without specifying organisation");
 		}
     }
 }
