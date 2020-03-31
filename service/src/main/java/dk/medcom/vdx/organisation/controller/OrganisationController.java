@@ -14,8 +14,7 @@ import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
-import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
-import dk.medcom.vdx.organisation.model.v1.OrganisationDto;
+import dk.medcom.vdx.organisation.model.OrganisationDto;
 
 @RestController
 public class OrganisationController {
