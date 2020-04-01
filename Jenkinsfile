@@ -42,11 +42,11 @@ pipeline {
                 echo 'Deploying.... ${env.GIT_COMMIT}'
             }
         }
-        post {
-            always {
-                script {
-                    sh 'docker stop medcom-vdx-organisation-resources'
-                }
+    }
+    post {
+        always {
+            script {
+                sh 'docker stop medcom-vdx-organisation-resources'
             }
         }
     }
