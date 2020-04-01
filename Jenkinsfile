@@ -12,7 +12,7 @@ pipeline {
         stage('Build And Test') {
             steps {
                 script {
-                    docker.build("build-medcom-vdx-organisation-resources", "-f ./integrationtest/docker/Dockerfile-resources --no-cache ./integrationtest")
+                    docker.build("build-medcom-vdx-organisation-resources", "-f ./integrationtest/docker/Dockerfile-resources --no-cache ./integrationtest/docker")
 
                     def resources = docker.image('build-medcom-vdx-organisation-resources')
                     resources.run("--name medcom-vdx-organisation-resources")
