@@ -95,41 +95,46 @@ public class JdbcOrganisationDao implements OrganisationDao {
 
 	@Override
 	public Organisation createOrganisation(List<Organisation> parentOrganisationsOrderedByDistance, String organisationCode, String organisationName, int poolSize) {
-		SimpleJdbcInsert template = new SimpleJdbcInsert(dataSource).withTableName("organisation");
+		SimpleJdbcInsert template = new SimpleJdbcInsert(dataSource).withTableName("organisation").usingGeneratedKeyColumns("id");
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put("organisation_id", organisationCode);
 		parameterMap.put("pool_size", poolSize);
 		parameterMap.put("name", organisationName);
-		template.execute(new MapSqlParameterSource(parameterMap));
-
-		Organisation created = findByOrganisationCode(organisationCode);
+		Number createdId = template.executeAndReturnKey(new MapSqlParameterSource(parameterMap));
 
 		// Create the hierarchy (point to oneself and to all parents)
-		SimpleJdbcInsert insertHierarchy = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
-
+		SimpleJdbcInsert insertHierarchyPointToMyself = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
 		Map<String, Object> insertHierarchyMyselfparameterMap = new HashMap<String, Object>();
-		insertHierarchyMyselfparameterMap.put("organisation_id", created.getId());
-		insertHierarchyMyselfparameterMap.put("parent_org_id", created.getId());
+		insertHierarchyMyselfparameterMap.put("organisation_id", createdId.longValue());
+		insertHierarchyMyselfparameterMap.put("parent_org_id", createdId.longValue());
 		insertHierarchyMyselfparameterMap.put("distance", 0);
-		insertHierarchy.execute(new MapSqlParameterSource(insertHierarchyMyselfparameterMap));
+		insertHierarchyPointToMyself.execute(new MapSqlParameterSource(insertHierarchyMyselfparameterMap));
 		
 		if (parentOrganisationsOrderedByDistance != null) {
 			for (int i = 0; i < parentOrganisationsOrderedByDistance.size(); i++) {
-				Map<String, Object> insertHierarchyParentparameterMap = new HashMap<String, Object>();
-				insertHierarchyParentparameterMap.put("organisation_id", created.getId());
-				insertHierarchyParentparameterMap.put("parent_org_id", parentOrganisationsOrderedByDistance.get(i));
-				insertHierarchyParentparameterMap.put("distance", i+1);
-				insertHierarchy.execute(new MapSqlParameterSource(insertHierarchyParentparameterMap));
+				SimpleJdbcInsert insertHierarchyPointToAncestor = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
+				Map<String, Object> insertHierarchyPointToAncestorParameterMap = new HashMap<String, Object>();
+				insertHierarchyPointToAncestorParameterMap.put("organisation_id", createdId.longValue());
+				insertHierarchyPointToAncestorParameterMap.put("parent_org_id", parentOrganisationsOrderedByDistance.get(i).getId());
+				insertHierarchyPointToAncestorParameterMap.put("distance", i+1);
+				insertHierarchyPointToAncestor.execute(new MapSqlParameterSource(insertHierarchyPointToAncestorParameterMap));
 			}
 		}
 		
+		Organisation created = findByOrganisationCode(organisationCode);
 		return created;
 	}
 
 	@Override
 	public List<Organisation> findAncestorsOrderedByDistanceClosestFirst(Long organisationId) {
-		var sql = "select o.* from organisation o left join org_hierarchy as h on o.id = h.organisation_id and h.distance = 1 left join organisation p on h.parent_org_id = p.id  where h.parent_org_id = :orgId and h.organisation_id = org.id order by h.distance asc";
+		var sql = "select o.*, p.id, p.organisation_id "
+				+ "from organisation o "
+				+ "  join org_hierarchy as h on o.id = h.parent_org_id"
+				+ "   left join org_hierarchy as h2 on o.id = h2.organisation_id and h2.distance = 1"
+				+ "   left join organisation p on h2.parent_org_id = p.id "
+				+ "where h.organisation_id = :orgId "
+				+ "  order by h.distance asc";
 		var template = new NamedParameterJdbcTemplate(dataSource);
-		return template.query(sql, organisationRowMapper);
+		return template.query(sql, new MapSqlParameterSource("orgId", organisationId),  organisationRowMapper);
 	}
 }

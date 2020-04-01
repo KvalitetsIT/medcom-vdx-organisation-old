@@ -48,15 +48,12 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		List<Organisation> ancestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toCreate);
 		
 		String userOrganisation = userContextService.getOrganisation();
-		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toCreate.getCode())) {
+		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toCreate.getCode()) && !isOrganisationPartOfAnyOrganisation(userOrganisation, ancestorsOrderedByDistanceClosestFirst)) {
 			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toCreate.getCode()+"'");
 		}
-		if (ancestorsOrderedByDistanceClosestFirst != null && !noOrganisation(userOrganisation) && !isOrganisationPartOfAnyOrganisation(userOrganisation, ancestorsOrderedByDistanceClosestFirst)) {
-			throw new PermissionDeniedException("The user does not have access to the parent organisation identified by '"+toCreate.getParentCode()+"'");
-		}
 		
-		Organisation updated = organisationDao.createOrganisation(ancestorsOrderedByDistanceClosestFirst, toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
-		return mapFromEntity(updated);
+		Organisation created = organisationDao.createOrganisation(ancestorsOrderedByDistanceClosestFirst, toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
+		return mapFromEntity(created);
 	}
 
 	public List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {

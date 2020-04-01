@@ -68,7 +68,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 	}
 
 	@Test
-	public void testThatUserWithNoOrgACanCreateNewOrganisation() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserWithNoOrgACanCreateNewToplevelOrganisation() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
 		
 		// Given
 		final String NEW_NAME = "Name";
@@ -130,10 +130,11 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		Assert.assertEquals(ORG_A_CODE, newOrgA.getCode());
 		Assert.assertEquals(NEW_NAME, newOrgA.getName());
 		Assert.assertEquals(100, newOrgA.getPoolSize());
+		Assert.assertNull(newOrgA.getParentCode());
 	}
 
 	@Test(expected = PermissionDeniedException.class)
-	public void testThatUserFromOrgACannotUpdateOrgB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserFromOrgBCannotUpdateOrgA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
 		
 		// Given
 		final String NEW_NAME = "New fancy name";
@@ -147,5 +148,69 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		subject.updateOrganisation(toUpdate);
 		
 		// Then
+	}
+
+	@Test(expected = PermissionDeniedException.class)
+	public void testThatUserFromOrgBCannotCreateNewOrgUnderOrgA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		
+		// Given
+		final String NEW_NAME = "New fancy name";
+		subject = new CreateOrUpdateOrganisationServiceImpl(userFromOrgBContext, organisationDao);
+		OrganisationDto toCreate = new OrganisationDto();
+		toCreate.setCode("New suborg xyz");
+		toCreate.setName(NEW_NAME);
+		toCreate.setPoolSize(100);
+		toCreate.setParentCode(ORG_A_CODE);
+		
+		// When
+		subject.createOrganisation(toCreate);
+		
+		// Then
+	}
+
+	@Test
+	public void testThatUserFromOrgBCanCreateNewOrgUnderOrgB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		
+		// Given
+		final String NEW_NAME = "New fancy name";
+		subject = new CreateOrUpdateOrganisationServiceImpl(userFromOrgBContext, organisationDao);
+		OrganisationDto toCreate = new OrganisationDto();
+		toCreate.setCode("New suborg xyz");
+		toCreate.setName(NEW_NAME);
+		toCreate.setPoolSize(117);
+		toCreate.setParentCode(ORG_B_CODE);
+		
+		// When
+		OrganisationDto newOrg = subject.createOrganisation(toCreate);
+		
+		// Then
+		Assert.assertNotNull(newOrg);
+		Assert.assertEquals(toCreate.getCode(), newOrg.getCode());
+		Assert.assertEquals(toCreate.getName(), newOrg.getName());
+		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize());
+		Assert.assertEquals(ORG_B_CODE, newOrg.getParentCode());
+	}
+
+	@Test
+	public void testThatUserFromNoOrgCanCreateNewOrgUnderOrgB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		
+		// Given
+		final String NEW_NAME = "New fancy name";
+		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		OrganisationDto toCreate = new OrganisationDto();
+		toCreate.setCode("New 12388");
+		toCreate.setName(NEW_NAME);
+		toCreate.setPoolSize(119);
+		toCreate.setParentCode(ORG_B_CODE);
+		
+		// When
+		OrganisationDto newOrg = subject.createOrganisation(toCreate);
+		
+		// Then
+		Assert.assertNotNull(newOrg);
+		Assert.assertEquals(toCreate.getCode(), newOrg.getCode());
+		Assert.assertEquals(toCreate.getName(), newOrg.getName());
+		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize());
+		Assert.assertEquals(ORG_B_CODE, newOrg.getParentCode());
 	}
 }
