@@ -13,7 +13,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 public class AbstractIntegrationTest {
-
+	private static final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 	private static final Logger mysqlLogger = LoggerFactory.getLogger("mysql");
 	private static final Logger organisationLogger = LoggerFactory.getLogger("organisation");
 
@@ -33,10 +33,23 @@ public class AbstractIntegrationTest {
 	private static Network dockerNetwork;
 	
 	private static String apiBasePath;
+	private static GenericContainer organisationService;
 
-	@BeforeClass
+	static {
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			public void run()
+			{
+				if(organisationService != null) {
+					logger.info("Stopping organisation container: " + organisationService.getContainerId());
+					organisationService.getDockerClient().stopContainerCmd(organisationService.getContainerId()).exec();
+				}
+			}
+		});
+		setup();
+	}
+
 	public static void setup() {
-		
 		if (dockerNetwork == null) {
 			dockerNetwork = Network.newNetwork();
 
@@ -51,7 +64,7 @@ public class AbstractIntegrationTest {
 			attachLogger(mysql, mysqlLogger);
 
 			// OrganisationsAPI
-			GenericContainer organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
+			organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
 					.withNetwork(dockerNetwork)
 					.withNetworkAliases("organisation")
 					.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
@@ -71,6 +84,10 @@ public class AbstractIntegrationTest {
 					.withEnv("JVM_OPTS", "-cp integrationtest.jar")
 
 					.withEnv("LOG_LEVEL", "DEBUG")
+
+					// Jacoco for code coverage of integration test.
+					.withFileSystemBind("/tmp", "/jacoco-report/")
+					.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true")
 
 					.withExposedPorts(8080)
 					.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
