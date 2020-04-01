@@ -15,7 +15,7 @@ pipeline {
                     def maven = docker.image('maven:3-jdk-11')
                     maven.pull()
                     maven.inside {
-                        sh 'mvn install'
+                        sh 'mvn install -Pdocker-test'
                     }
 
                     junit '**/target/surefire-reports/*.xml'
