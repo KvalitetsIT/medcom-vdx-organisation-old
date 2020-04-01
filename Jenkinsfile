@@ -23,8 +23,8 @@ pipeline {
                         sh 'mvn install -Pdocker-test'
                     }
 
-                    junit '**/target/surefire-reports/*.xml'
-                    jacoco changeBuildStatus: true, maximumLineCoverage: '0', minimumLineCoverage: '0', exclusionPattern: '**/some/pattern**/*.*'
+                    junit '**/target/surefire-reports/*.xml,**/target/failsafe-reports/*.xml'
+                    jacoco changeBuildStatus: true, maximumLineCoverage: '80', minimumLineCoverage: '60', exclusionPattern: '**/org/openapitools/**/*.*'
                 }
             }
         }
@@ -46,7 +46,8 @@ pipeline {
     post {
         always {
             script {
-                sh 'docker stop medcom-vdx-organisation-resources'
+                sh 'docker stop medcom-vdx-organisation-resources || true'
+                sh 'docker rm medcom-vdx-organisation-resources || true'
             }
         }
     }
