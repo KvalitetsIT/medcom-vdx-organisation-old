@@ -15,7 +15,7 @@ pipeline {
                     docker.build("build-medcom-vdx-organisation-resources", "-f ./integrationtest/docker/Dockerfile-resources --no-cache ./integrationtest/docker")
 
                     def resources = docker.image('build-medcom-vdx-organisation-resources')
-                    resources.run("--name medcom-vdx-organisation-resources --rm")
+                    resources.run("--name medcom-vdx-organisation-resources")
 
                     def maven = docker.image('maven:3-jdk-11')
                     maven.pull()
