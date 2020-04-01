@@ -12,9 +12,14 @@ pipeline {
         stage('Build And Test') {
             steps {
                 script {
+                    docker.build("build-medcom-vdx-organisation-resources", "-f ./integrationtest/docker/Dockerfile-resources --no-cache ./integrationtest")
+
+                    def resources = docker.image('build-medcom-vdx-organisation-resources')
+                    resources.run("--name medcom-vdx-organisation-resources")
+
                     def maven = docker.image('maven:3-jdk-11')
                     maven.pull()
-                    maven.inside {
+                    maven.inside("--volumes-from medcom-vdx-organisation-resources") {
                         sh 'mvn install -Pdocker-test'
                     }
 
@@ -35,6 +40,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying.... ${env.GIT_COMMIT}'
+            }
+        }
+        post {
+            always {
+                script {
+                    sh 'docker stop medcom-vdx-organisation-resources'
+                }
             }
         }
     }

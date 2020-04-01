@@ -1,9 +1,11 @@
 package dk.medcom.vdx.organisation;
 
+import com.github.dockerjava.api.model.VolumesFrom;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.Network;
@@ -11,6 +13,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.util.Base64;
+import java.util.Collections;
 
 public class AbstractIntegrationTest {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTest.class);
@@ -40,10 +43,10 @@ public class AbstractIntegrationTest {
 		{
 			public void run()
 			{
-				if(organisationService != null) {
-					logger.info("Stopping organisation container: " + organisationService.getContainerId());
-					organisationService.getDockerClient().stopContainerCmd(organisationService.getContainerId()).exec();
-				}
+			if(organisationService != null) {
+				logger.info("Stopping organisation container: " + organisationService.getContainerId());
+				organisationService.getDockerClient().stopContainerCmd(organisationService.getContainerId()).exec();
+			}
 			}
 		});
 
@@ -51,63 +54,93 @@ public class AbstractIntegrationTest {
 	}
 
 	public static void setup() {
-		var runInDocker = Boolean.getBoolean("runInDocker");
-		logger.info("Running integration test in docker continer: " + runInDocker);
-
 		if (dockerNetwork == null) {
 			dockerNetwork = Network.newNetwork();
 
-			// Database server for Organisation.
-			MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
-					.withDatabaseName("organisationdb")
-					.withUsername("orguser")
-					.withPassword("secret1234")
-					.withNetwork(dockerNetwork)
-					.withNetworkAliases("mysql");
-			mysql.start();
-			attachLogger(mysql, mysqlLogger);
+			var mysql = setupDatabaseContainer();
 
-			if(runInDocker) {
-				// OrganisationsAPI
-				organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
-						.withNetwork(dockerNetwork)
-						.withNetworkAliases("organisation")
-						.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
-						.withEnv("jdbc_user", "orguser")
-						.withEnv("jdbc_pass", "secret1234")
+			setupOrganisationService(mysql);
+		}
+	}
 
-						.withEnv("usercontext_header_name", TEST_AUTH_HEADER)
-						.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
-						.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
-						.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
-						.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
-						.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
-						.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
+	private static MySQLContainer setupDatabaseContainer() {
+		// Database server for Organisation.
+		MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
+				.withDatabaseName("organisationdb")
+				.withUsername("orguser")
+				.withPassword("secret1234")
+				.withNetwork(dockerNetwork)
+				.withNetworkAliases("mysql");
+		mysql.start();
+		attachLogger(mysql, mysqlLogger);
 
-						// Contains integrationtestdata
-						.withEnv("LOADER_PATH", "/app/lib")
-						.withEnv("JVM_OPTS", "-cp integrationtest.jar")
+		return mysql;
+	}
 
-						.withEnv("LOG_LEVEL", "DEBUG")
+	private static void setupOrganisationService(MySQLContainer mysql) {
+		var runInDocker = Boolean.getBoolean("runInDocker");
+		logger.info("Running integration test in docker continer: " + runInDocker);
 
-						// Jacoco for code coverage of integration test.
-						.withFileSystemBind("/tmp", "/jacoco-report/")
-						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true")
+		var resourcesContainerName = "medcom-vdx-organisation-resources";
+		var resourcesRunning = containerRunning(resourcesContainerName);
 
-						.withExposedPorts(8080)
-						.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
-				organisationService.start();
-				attachLogger(organisationService, organisationLogger);
-
-				apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
+		if(runInDocker) {
+			// OrganisationsAPI
+			organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev");
+			if(resourcesRunning) {
+				VolumesFrom volumesFrom = new VolumesFrom("sts-resources");
+				organisationService = new GenericContainer<>("kvalitetsit/sts:latest")
+						.withCreateContainerCmdModifier(modifier -> modifier.withVolumesFrom(volumesFrom))
+						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true,append=true");
 			}
 			else {
-				String jdbcUrl = mysql.getJdbcUrl();
-				System.setProperty("jdbc.url", jdbcUrl);
-				SpringApplication.run(Application.class, new String[]{});
-				apiBasePath = "http://localhost:8080";
+				organisationService.withFileSystemBind("/tmp", "/jacoco-report/")
+						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true");
 			}
+
+			organisationService.withNetwork(dockerNetwork)
+					.withNetworkAliases("organisation")
+					.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
+					.withEnv("jdbc_user", "orguser")
+					.withEnv("jdbc_pass", "secret1234")
+
+					.withEnv("usercontext_header_name", TEST_AUTH_HEADER)
+					.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
+					.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
+					.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
+					.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
+					.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
+					.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
+
+					// Contains integrationtestdata
+					.withEnv("LOADER_PATH", "/app/lib")
+					.withEnv("JVM_OPTS", "-cp integrationtest.jar")
+
+					.withEnv("LOG_LEVEL", "DEBUG")
+
+					.withExposedPorts(8080)
+					.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
+			organisationService.start();
+			attachLogger(organisationService, organisationLogger);
+
+			apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
 		}
+		else {
+			String jdbcUrl = mysql.getJdbcUrl();
+			System.setProperty("jdbc.url", jdbcUrl);
+			SpringApplication.run(Application.class);
+			apiBasePath = "http://localhost:8080";
+		}
+	}
+
+	private static boolean containerRunning(String containerName) {
+		return DockerClientFactory
+				.instance()
+				.client()
+				.listContainersCmd()
+				.withNameFilter(Collections.singleton(containerName))
+				.exec()
+				.size() != 0;
 	}
 
 	private static void attachLogger(GenericContainer container, Logger logger) {
