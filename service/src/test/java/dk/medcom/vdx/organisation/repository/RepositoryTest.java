@@ -19,16 +19,23 @@ import org.testcontainers.containers.MySQLContainer;
 @Transactional
 abstract public class RepositoryTest {
 
+	private static Object initialized = null;
+	
 	@BeforeClass
 	public static void setupMySqlJdbcUrl() {
-		MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
-				.withDatabaseName("organisationdb")
-				.withUsername("orguser")
-				.withPassword("secret1234");
-		mysql.start();
+		
+		if (initialized == null) {
+			MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
+					.withDatabaseName("organisationdb")
+					.withUsername("orguser")
+					.withPassword("secret1234");
+			mysql.start();
 
-		String jdbcUrl = mysql.getJdbcUrl();
-		System.setProperty("jdbc.url", jdbcUrl);
+			String jdbcUrl = mysql.getJdbcUrl();
+			System.setProperty("jdbc.url", jdbcUrl);
+			
+			initialized = new Object();
+		}
 	}
 	
 }

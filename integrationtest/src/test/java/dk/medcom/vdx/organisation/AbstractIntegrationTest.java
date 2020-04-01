@@ -36,46 +36,49 @@ public class AbstractIntegrationTest {
 
 	@BeforeClass
 	public static void setup() {
-		dockerNetwork = Network.newNetwork();
+		
+		if (dockerNetwork == null) {
+			dockerNetwork = Network.newNetwork();
 
-		// Database server for Organisation.
-		MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
-				.withDatabaseName("organisationdb")
-				.withUsername("orguser")
-				.withPassword("secret1234")
-				.withNetwork(dockerNetwork)
-				.withNetworkAliases("mysql");
-		mysql.start();
-		attachLogger(mysql, mysqlLogger);
+			// Database server for Organisation.
+			MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
+					.withDatabaseName("organisationdb")
+					.withUsername("orguser")
+					.withPassword("secret1234")
+					.withNetwork(dockerNetwork)
+					.withNetworkAliases("mysql");
+			mysql.start();
+			attachLogger(mysql, mysqlLogger);
 
-		// OrganisationsAPI
-		GenericContainer organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
-				.withNetwork(dockerNetwork)
-				.withNetworkAliases("organisation")
-				.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
-				.withEnv("jdbc_user", "orguser")
-				.withEnv("jdbc_pass", "secret1234")
+			// OrganisationsAPI
+			GenericContainer organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
+					.withNetwork(dockerNetwork)
+					.withNetworkAliases("organisation")
+					.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
+					.withEnv("jdbc_user", "orguser")
+					.withEnv("jdbc_pass", "secret1234")
 
-				.withEnv("usercontext_header_name", TEST_AUTH_HEADER)
-				.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
-				.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
-				.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
-				.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
-				.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
-				.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
+					.withEnv("usercontext_header_name", TEST_AUTH_HEADER)
+					.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
+					.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
+					.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
+					.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
+					.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
+					.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
 
-				// Contains integrationtestdata
-				.withEnv("LOADER_PATH", "/app/lib")
-				.withEnv("JVM_OPTS", "-cp integrationtest.jar")
+					// Contains integrationtestdata
+					.withEnv("LOADER_PATH", "/app/lib")
+					.withEnv("JVM_OPTS", "-cp integrationtest.jar")
 
-				.withEnv("LOG_LEVEL", "DEBUG")
+					.withEnv("LOG_LEVEL", "DEBUG")
 
-				.withExposedPorts(8080)
-				.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
-		organisationService.start();
-		attachLogger(organisationService, organisationLogger);
+					.withExposedPorts(8080)
+					.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
+			organisationService.start();
+			attachLogger(organisationService, organisationLogger);
 
-		apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
+			apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
+		}
 	}
 
 	private static void attachLogger(GenericContainer container, Logger logger) {
