@@ -31,3 +31,17 @@ Når snitfladebeskrivelsen er opdateret kan der dannes nu testklientkode ved at 
 Derefter kan passende integrationstests udvikles i medcom-vdx-organisation-integrationtest.
 
 Selve servicen implementeres i de to moduler medcom-vdx-organisation-interface hhv medcom-vdx-organisation-service
+
+## Afvikling af integrationstest
+
+Det er muligt at afvikle integrationstests på to måder. Den ene måde starter servicen op i en container med det docker image som servicen bygger. Den anden måde starter servicen op som en Spring Boot applikation. Fordelen ved den sidste måde er at det så er muligt at debugge servicen fra ens favorit IDE. 
+
+**Service startes i docker**
+
+For at afvikle integrationstest mod servicen kørende i en container aktiverer du blot maven profilen docker-test. Det er også sådan byg på Jenkins afvikles. 
+
+``m̀vn clean install -Pdocker-test``
+
+**Service startes som Spring Boot applikation**
+
+Dette er standard måden når du bygger med maven og også sådan testen afvikles hvis du debugger en test i dit favorit IDE.  

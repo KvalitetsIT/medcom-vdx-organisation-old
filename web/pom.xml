@@ -32,9 +32,14 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<classifier>exec</classifier>
 					<layout>ZIP</layout>
 				</configuration>
 			</plugin>
@@ -53,6 +58,13 @@
 								</tags>
 								<dockerFileDir>${basedir}/docker</dockerFileDir>
 								<assembly>
+									<inline>
+										<files>
+											<file>
+												<source>${project.build.directory}/web-exec.jar</source>
+											</file>
+										</files>
+									</inline>
 									<descriptorRef>artifact</descriptorRef>
 									<targetDir>/app</targetDir>
 								</assembly>

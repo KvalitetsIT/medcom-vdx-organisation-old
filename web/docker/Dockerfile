@@ -8,7 +8,7 @@ RUN chmod +x entrypoint.sh
 RUN mkdir /app
 WORKDIR /app
 
-COPY /maven/web.jar ./service.jar
+COPY /maven/web-exec.jar ./service.jar
 COPY config/logback.xml ./logback-spring.xml
 
 ENTRYPOINT [ "/entrypoint.sh" ]

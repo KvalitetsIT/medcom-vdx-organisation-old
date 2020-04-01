@@ -1,16 +1,16 @@
 package dk.medcom.vdx.organisation;
 
-import java.util.Base64;
-
-import org.junit.BeforeClass;
 import org.openapitools.client.ApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
+
+import java.util.Base64;
 
 public class AbstractIntegrationTest {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTest.class);
@@ -46,10 +46,14 @@ public class AbstractIntegrationTest {
 				}
 			}
 		});
+
 		setup();
 	}
 
 	public static void setup() {
+		var runInDocker = Boolean.getBoolean("runInDocker");
+		logger.info("Running integration test in docker continer: " + runInDocker);
+
 		if (dockerNetwork == null) {
 			dockerNetwork = Network.newNetwork();
 
@@ -63,38 +67,46 @@ public class AbstractIntegrationTest {
 			mysql.start();
 			attachLogger(mysql, mysqlLogger);
 
-			// OrganisationsAPI
-			organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
-					.withNetwork(dockerNetwork)
-					.withNetworkAliases("organisation")
-					.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
-					.withEnv("jdbc_user", "orguser")
-					.withEnv("jdbc_pass", "secret1234")
+			if(runInDocker) {
+				// OrganisationsAPI
+				organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
+						.withNetwork(dockerNetwork)
+						.withNetworkAliases("organisation")
+						.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
+						.withEnv("jdbc_user", "orguser")
+						.withEnv("jdbc_pass", "secret1234")
 
-					.withEnv("usercontext_header_name", TEST_AUTH_HEADER)
-					.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
-					.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
-					.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
-					.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
-					.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
-					.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
+						.withEnv("usercontext_header_name", TEST_AUTH_HEADER)
+						.withEnv("userattributes_role_key", TEST_USER_ATTRIBUTES_ROLE_KEY)
+						.withEnv("userrole_admin_values", TEST_ROLE_ADMIN)
+						.withEnv("userrole_user_values", TEST_ROLE_USER_1+","+TEST_ROLE_USER_2)
+						.withEnv("userrole_monitor_values", TEST_ROLE_MONITOR)
+						.withEnv("userrole_provisioner_values", TEST_ROLE_PROVISIONER)
+						.withEnv("userattributes_org_key", TEST_USER_ATTRIBUTES_ORG_KEY)
 
-					// Contains integrationtestdata
-					.withEnv("LOADER_PATH", "/app/lib")
-					.withEnv("JVM_OPTS", "-cp integrationtest.jar")
+						// Contains integrationtestdata
+						.withEnv("LOADER_PATH", "/app/lib")
+						.withEnv("JVM_OPTS", "-cp integrationtest.jar")
 
-					.withEnv("LOG_LEVEL", "DEBUG")
+						.withEnv("LOG_LEVEL", "DEBUG")
 
-					// Jacoco for code coverage of integration test.
-					.withFileSystemBind("/tmp", "/jacoco-report/")
-					.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true")
+						// Jacoco for code coverage of integration test.
+						.withFileSystemBind("/tmp", "/jacoco-report/")
+						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true")
 
-					.withExposedPorts(8080)
-					.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
-			organisationService.start();
-			attachLogger(organisationService, organisationLogger);
+						.withExposedPorts(8080)
+						.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
+				organisationService.start();
+				attachLogger(organisationService, organisationLogger);
 
-			apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
+				apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
+			}
+			else {
+				String jdbcUrl = mysql.getJdbcUrl();
+				System.setProperty("jdbc.url", jdbcUrl);
+				SpringApplication.run(Application.class, new String[]{});
+				apiBasePath = "http://localhost:8080";
+			}
 		}
 	}
 
