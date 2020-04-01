@@ -18,8 +18,8 @@ import dk.medcom.vdx.organisation.repository.RepositoryTest;
 
 public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 
-	static final String ORG_A_CODE = "orga";
-	static final String ORG_B_CODE = "orgb";
+	static final String ORG_A_CODE = "org-a";
+	static final String ORG_B_CODE = "org-b";
 
 	UserContextService userWithNoOrganisationContext;
 	UserContextService userFromOrgAContext;

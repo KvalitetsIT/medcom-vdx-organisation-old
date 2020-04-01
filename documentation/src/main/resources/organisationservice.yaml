@@ -194,6 +194,11 @@ components:
       - name
       - poolSize
       properties:
+        parentCode:
+          description: The code that uniquely identifies the parent organisation
+          type: string
+          maxLength: 100
+          example: level_one_org
         code:
           description: The code that uniquely identifies an organisation
           type: string

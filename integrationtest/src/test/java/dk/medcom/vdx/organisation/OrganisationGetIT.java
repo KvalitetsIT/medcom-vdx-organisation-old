@@ -1,6 +1,8 @@
 package dk.medcom.vdx.organisation;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -88,8 +90,16 @@ public class OrganisationGetIT extends AbstractIntegrationTest {
 		
 		// Then
 		Assert.assertNotNull(orgs);
-		Assert.assertEquals(1, orgs.size());
-		Assert.assertEquals(orgs.get(0).getCode(), TEST_ORGANISATION_A);
+		Assert.assertEquals(2, orgs.size());
+		
+		Set<String> codes = new HashSet<String>();
+		for (Organisation org : orgs) {
+			System.out.println("************************ "+org.getCode());
+			codes.add(org.getCode());
+		}
+		
+		Assert.assertTrue(codes.contains(TEST_ORGANISATION_A));
+		Assert.assertTrue(codes.contains(TEST_ORGANISATION_A_SUB));
 	}
 	
 	@Test

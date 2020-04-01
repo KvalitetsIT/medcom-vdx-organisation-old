@@ -27,6 +27,8 @@ public class AbstractIntegrationTest {
 	public static final String TEST_ROLE_PROVISIONER = "provisioner";
 	
 	public static final String TEST_ORGANISATION_A = "org-a";
+	public static final String TEST_ORGANISATION_A_SUB = "sub-org-a";
+	
 	public static final String TEST_ORGANISATION_B = "org-b";
 	
 	

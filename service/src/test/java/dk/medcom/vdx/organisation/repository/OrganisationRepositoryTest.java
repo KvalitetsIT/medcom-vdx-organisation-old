@@ -61,7 +61,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 
 	@Test
 	public void testFindAllPoolOrganizations() {
-		List<Organisation> organizations = subject.findByPoolSizeNotNull();
+		List<Organisation> organizations = subject.findByPoolSizeGreaterThanZero();
 
 		assertNotNull(organizations);
 		assertEquals(1, organizations.size());

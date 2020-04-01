@@ -15,10 +15,12 @@ public class OrganisationRowMapper implements RowMapper<Organisation>{
         	return null;
         }
         var organisation = new Organisation();
-        organisation.setId(resultSet.getLong("id"));
-        organisation.setOrganisationId(resultSet.getString("organisation_id"));
-        organisation.setName(resultSet.getString("name"));
-        organisation.setPoolSize(resultSet.getInt("pool_size"));
+        organisation.setId(resultSet.getLong("o.id"));
+        organisation.setOrganisationId(resultSet.getString("o.organisation_id"));
+        organisation.setName(resultSet.getString("o.name"));
+        organisation.setPoolSize(resultSet.getInt("o.pool_size"));
+        organisation.setParentOrganisationId(resultSet.getLong("p.id"));
+        organisation.setParentOrganisationCode(resultSet.getString("p.organisation_id"));
         return organisation;
 	}
 

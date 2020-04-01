@@ -4,6 +4,8 @@ public class OrganisationDto {
 
 	int poolSize;
 	
+	String parentCode;
+	
 	String code;
 	
 	String name;
@@ -30,5 +32,13 @@ public class OrganisationDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getParentCode() {
+		return parentCode;
+	}
+
+	public void setParentCode(String parentCode) {
+		this.parentCode = parentCode;
 	}
 }

@@ -1,6 +1,8 @@
 package dk.medcom.vdx.organisation.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,8 +20,9 @@ import dk.medcom.vdx.organisation.repository.RepositoryTest;
 
 public class FindOrganisationServiceImplTest extends RepositoryTest {
 
-	static final String ORG_A_CODE = "orga";
-	static final String ORG_B_CODE = "orgb";
+	static final String ORG_A_CODE = "org-a";
+	static final String ORG_A_CODE_SUB = "sub-org-a";
+	static final String ORG_B_CODE = "org-b";
 
 	UserContextService userWithNoOrganisationContext;
 	UserContextService userFromOrgAContext;
@@ -92,10 +95,41 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		Assert.assertNotNull(orgA);
 		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
 		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
+		Assert.assertNull(orgA.getParentCode());
 	}
 
 	@Test
-	public void testThatUserWithNoOrgCanGetAllOrganisations() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserFromOrgAFindsAllOrganisationsUnderAndIncludingA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		
+		// Given
+		subject = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
+		
+		// When
+		List<OrganisationDto> orgs = subject.findOrganisations();
+		
+		// Then
+		Assert.assertNotNull(orgs);
+		Assert.assertEquals(2, orgs.size());
+		
+		Map<String, OrganisationDto> resultMap = new HashMap<String, OrganisationDto>();
+		for (OrganisationDto org : orgs) {
+			resultMap.put(org.getCode(), org);
+		}
+		Assert.assertTrue(resultMap.containsKey(ORG_A_CODE));
+		Assert.assertTrue(resultMap.containsKey(ORG_A_CODE_SUB));
+
+		OrganisationDto orgA = resultMap.get(ORG_A_CODE);
+		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
+		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
+		Assert.assertNull(orgA.getParentCode());
+		
+		OrganisationDto subOrg = resultMap.get(ORG_A_CODE_SUB);
+		Assert.assertEquals(ORG_A_CODE_SUB, subOrg.getCode());
+		Assert.assertEquals(orgA.getCode(), subOrg.getParentCode());
+	}
+
+	@Test
+	public void testThatUserWithNoOrgCanGetOrganisationA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
 		
 		// Given
 		subject = new FindOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
@@ -110,10 +144,25 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 	}
 
 	@Test
+	public void testThatUserWithNoOrgCanGetOrganisationSubA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		
+		// Given
+		subject = new FindOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		
+		// When
+		OrganisationDto subOrgA = subject.findOrganisationFromCode(ORG_A_CODE_SUB);
+		
+		// Then
+		Assert.assertNotNull(subOrgA);
+		Assert.assertEquals(ORG_A_CODE_SUB, subOrgA.getCode());
+		Assert.assertEquals(ORG_A_CODE, subOrgA.getParentCode());
+	}
+
+	@Test
 	public void testThatUserFromOrgBFindsOrganisationUnderB() throws PermissionDeniedException, RessourceNotFoundException {
 		
 		// Given
-		subject = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
+		subject = new FindOrganisationServiceImpl(userFromOrgBContext, organisationDao);
 		
 		// When
 		List<OrganisationDto> organisations = subject.findOrganisations();
@@ -121,6 +170,8 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		// Then
 		Assert.assertNotNull(organisations);
 		Assert.assertEquals(1, organisations.size());
+		Assert.assertEquals(ORG_B_CODE, organisations.get(0).getCode());
+		Assert.assertNull(organisations.get(0).getParentCode());
 	}
 	
 	@Test
@@ -134,7 +185,6 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		
 		// Then
 		Assert.assertNotNull(organisations);
-		Assert.assertTrue(organisations.size() >= 2);
+		Assert.assertTrue(organisations.size() == 10);
 	}
-
 }

@@ -1,5 +1,7 @@
 package dk.medcom.vdx.organisation.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import dk.medcom.vdx.organisation.api.OrganisationDto;
@@ -8,6 +10,7 @@ import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
+import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
 
 public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements CreateOrUpdateOrganisationService {
@@ -23,33 +26,40 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 	}
 
 	@Override
-	public OrganisationDto updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException {
+	public OrganisationDto updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 		
-		validateOrganisationInput(toUpdate);
+		List<Organisation> newAncestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toUpdate);
 		
 		String userOrganisation = userContextService.getOrganisation();
 		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toUpdate.getCode())) {
 			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toUpdate.getCode()+"'");
 		}
+		if (newAncestorsOrderedByDistanceClosestFirst != null && !noOrganisation(userOrganisation) && !isOrganisationPartOfAnyOrganisation(userOrganisation, newAncestorsOrderedByDistanceClosestFirst)) {
+			throw new PermissionDeniedException("The user does not have access to the parent organisation identified by '"+toUpdate.getParentCode()+"'");
+		}
 
-		Organisation updated = organisationDao.updateOrganisationWithCode(toUpdate.getCode(), toUpdate.getName(), toUpdate.getPoolSize());
+		Organisation updated = organisationDao.updateOrganisationWithCode(toUpdate.getCode(), toUpdate.getName(), toUpdate.getPoolSize(), newAncestorsOrderedByDistanceClosestFirst);
 		return mapFromEntity(updated);
 	}
 	
 	@Override
-	public OrganisationDto createOrganisation(OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException {
+	public OrganisationDto createOrganisation(OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 
-		validateOrganisationInput(toCreate);
+		List<Organisation> ancestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toCreate);
 		
 		String userOrganisation = userContextService.getOrganisation();
 		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toCreate.getCode())) {
 			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toCreate.getCode()+"'");
 		}
-		Organisation updated = organisationDao.createOrganisation(toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
+		if (ancestorsOrderedByDistanceClosestFirst != null && !noOrganisation(userOrganisation) && !isOrganisationPartOfAnyOrganisation(userOrganisation, ancestorsOrderedByDistanceClosestFirst)) {
+			throw new PermissionDeniedException("The user does not have access to the parent organisation identified by '"+toCreate.getParentCode()+"'");
+		}
+		
+		Organisation updated = organisationDao.createOrganisation(ancestorsOrderedByDistanceClosestFirst, toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
 		return mapFromEntity(updated);
 	}
 
-	public void validateOrganisationInput(OrganisationDto input) throws BadRequestException {
+	public List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {
 		
 		if (input.getCode() == null || input.getCode().length() == 0) {
 			throw new BadRequestException("An organisation must have a 'code'");
@@ -62,5 +72,16 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		if (input.getPoolSize() < 0) {
 			throw new BadRequestException("An organisation must have a 'poolSize' > 0");
 		}
+		
+		if (input.getParentCode() != null && input.getParentCode().strip().length() > 0) {
+			Organisation parent = organisationDao.findByOrganisationCode(input.getParentCode());
+			if (parent == null) {
+				throw new RessourceNotFoundException("organisation", "parentCode");
+			}
+			
+			List<Organisation> ancestorsOrderedByDistanceClosestFirst = organisationDao.findAncestorsOrderedByDistanceClosestFirst(parent.getId());
+			return ancestorsOrderedByDistanceClosestFirst;
+		}
+		return null;
 	}
 }

@@ -3,6 +3,10 @@ package dk.medcom.vdx.organisation.dao.entity;
 public class Organisation {
 	private Long id;
 
+	private Long parentOrganisationId;
+
+	private String parentOrganisationCode;
+
 	private String organisationId;
 
 	private String name;
@@ -39,6 +43,22 @@ public class Organisation {
 
 	public void setPoolSize(Integer poolSize) {
 		this.poolSize = poolSize;
+	}
+	
+	public Long getParentOrganisationId() {
+		return parentOrganisationId;
+	}
+
+	public void setParentOrganisationId(Long parentOrganisationId) {
+		this.parentOrganisationId = parentOrganisationId;
+	}
+	
+	public String getParentOrganisationCode() {
+		return parentOrganisationCode;
+	}
+
+	public void setParentOrganisationCode(String parentOrganisationCode) {
+		this.parentOrganisationCode = parentOrganisationCode;
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package dk.medcom.vdx.organisation.dao;
 
-import dk.medcom.vdx.organisation.dao.entity.Organisation;
-
 import java.util.List;
+
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 
 public interface OrganisationDao {
 
@@ -10,11 +10,13 @@ public interface OrganisationDao {
 
 	List<Organisation> findOrganisations(String topOrganisationCode);
 
+	List<Organisation> findAncestorsOrderedByDistanceClosestFirst(Long organisationId);
+
 	Organisation findByOrganisationCode(String organisationCode);
 
-	List<Organisation> findByPoolSizeNotNull();
+	List<Organisation> findByPoolSizeGreaterThanZero();
 	
-	Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize);
+	Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize, List<Organisation> newAncestorsOrderedByDistanceClosestFirst);
 
-	Organisation createOrganisation(String organisationCode, String organisationName, int poolSize);
+	Organisation createOrganisation(List<Organisation> ancestorsOrderedByDistanceClosestFirst, String organisationCode, String organisationName, int poolSize);
 }

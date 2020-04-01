@@ -11,11 +11,25 @@ public class AbstractOrganisationServiceImpl {
 		return (org == null || org.length() == 0);
 	}
 	
-	public boolean isOrganisationPartOfOrganisation(String organisationShortNameToCheck, String targetOrganisationShortName) {
-		if (organisationShortNameToCheck == null || !organisationShortNameToCheck.equals(targetOrganisationShortName)) {
+	public boolean isOrganisationPartOfOrganisation(String organisationCodeToCheck, String targetOrganisationCode) {
+		if (organisationCodeToCheck == null || !organisationCodeToCheck.equals(targetOrganisationCode)) {
 			return false;
 		}
 		return true;
+	}
+	
+	
+	public boolean isOrganisationPartOfAnyOrganisation(String organisationCodeToCheck, List<Organisation> ancestorsOrderedByDistance) {
+		
+		if (ancestorsOrderedByDistance == null || ancestorsOrderedByDistance.size() == 0) {
+			return true;
+		}
+		for (Organisation organisation : ancestorsOrderedByDistance) {
+			if (isOrganisationPartOfOrganisation(organisationCodeToCheck, organisation.getOrganisationId())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public OrganisationDto mapFromEntity(Organisation organisation) {
@@ -23,6 +37,7 @@ public class AbstractOrganisationServiceImpl {
 			OrganisationDto organisationDto = new OrganisationDto();
 			organisationDto.setCode(organisation.getOrganisationId());
 			organisationDto.setName(organisation.getName());
+			organisationDto.setParentCode(organisation.getParentOrganisationCode());
 			organisationDto.setPoolSize(organisation.getPoolSize());
 			return organisationDto;
 		}

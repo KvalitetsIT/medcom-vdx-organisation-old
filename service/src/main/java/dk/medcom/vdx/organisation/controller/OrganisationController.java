@@ -57,7 +57,7 @@ public class OrganisationController {
 	
 	@APISecurityAnnotation({ UserRole.ADMIN, UserRole.PROVISIONER })
 	@RequestMapping(value = "/services/organisation", method = RequestMethod.POST)
-	public OrganisationDto createOrganisation(/*@Valid*/ @RequestBody OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException {
+	public OrganisationDto createOrganisation(/*@Valid*/ @RequestBody OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 		LOGGER.debug("Enter createOrganisation(toCreate: "+toCreate+")");
 		try {
 			OrganisationDto organisation = createOrUpdateOrganisationService.createOrganisation(toCreate);
@@ -69,7 +69,7 @@ public class OrganisationController {
 	
 	@APISecurityAnnotation({ UserRole.ADMIN, UserRole.PROVISIONER })
 	@RequestMapping(value = "/services/organisation", method = RequestMethod.PUT)
-	public OrganisationDto updateOrganisation(/*@Valid*/ @RequestBody OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException {
+	public OrganisationDto updateOrganisation(/*@Valid*/ @RequestBody OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 		LOGGER.debug("Enter updateOrganisation(toUpdate: "+toUpdate+")");
 		try {
 			OrganisationDto organisation = createOrUpdateOrganisationService.updateOrganisation(toUpdate);
