@@ -28,11 +28,11 @@ public class JdbcOrganisationDao implements OrganisationDao {
 	}
 
 	@Override
-	public Organisation findByOrganisationShortName(String organisationShortName) {
+	public Organisation findByOrganisationCode(String organisationCode) {
 		try {
-			var sql = "select * from organisation where organisation_id = :shortName";
+			var sql = "select * from organisation where organisation_id = :code";
 			NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
-			return template.queryForObject(sql, new MapSqlParameterSource("shortName", organisationShortName), organisationRowMapper);
+			return template.queryForObject(sql, new MapSqlParameterSource("code", organisationCode), organisationRowMapper);
 		}
 		catch(EmptyResultDataAccessException e) {
 			return null;
@@ -40,10 +40,10 @@ public class JdbcOrganisationDao implements OrganisationDao {
 	}
 
 	@Override
-	public List<Organisation> findOrganisations(String organisationShortName) {
-		var sql = "select * from organisation where organisation_id = :shortName";
+	public List<Organisation> findOrganisations(String organisationCode) {
+		var sql = "select * from organisation where organisation_id = :code";
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
-		return template.query(sql, new MapSqlParameterSource("shortName", organisationShortName), organisationRowMapper);
+		return template.query(sql, new MapSqlParameterSource("code", organisationCode), organisationRowMapper);
 	}
 
 	@Override
@@ -61,25 +61,25 @@ public class JdbcOrganisationDao implements OrganisationDao {
 	}
 
 	@Override
-	public Organisation updateOrganisationWithShortName(String organisationShortName, String organisationName, int poolSize) {
-		var sql = "update organisation set name = :name, pool_size = :poolSize where organisation_id = :shortName";
+	public Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize) {
+		var sql = "update organisation set name = :name, pool_size = :poolSize where organisation_id = :code";
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put("shortName", organisationShortName);
+		parameterMap.put("code", organisationCode);
 		parameterMap.put("poolSize", poolSize);
 		parameterMap.put("name", organisationName);
 		template.update(sql, new MapSqlParameterSource(parameterMap));
-		return findByOrganisationShortName(organisationShortName);
+		return findByOrganisationCode(organisationCode);
 	}
 
 	@Override
-	public Organisation createOrganisation(String organisationShortName, String organisationName, int poolSize) {
+	public Organisation createOrganisation(String organisationCode, String organisationName, int poolSize) {
 		SimpleJdbcInsert template = new SimpleJdbcInsert(dataSource).withTableName("organisation");
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put("organisation_id", organisationShortName);
+		parameterMap.put("organisation_id", organisationCode);
 		parameterMap.put("pool_size", poolSize);
 		parameterMap.put("name", organisationName);
 		template.execute(new MapSqlParameterSource(parameterMap));
-		return findByOrganisationShortName(organisationShortName);
+		return findByOrganisationCode(organisationCode);
 	}
 }

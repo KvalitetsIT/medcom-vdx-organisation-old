@@ -26,7 +26,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		String existingOrg = "Company 1";
 		
 		// When
-		Organisation organisation = subject.findByOrganisationShortName(existingOrg);
+		Organisation organisation = subject.findByOrganisationCode(existingOrg);
 		
 		// Then
 		Assert.assertNotNull(organisation);
@@ -38,7 +38,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		String existingOrg = "nonexisting-org";
 		
 		// When
-		Organisation organisation = subject.findByOrganisationShortName(existingOrg);
+		Organisation organisation = subject.findByOrganisationCode(existingOrg);
 		
 		// Then
 		Assert.assertNull(organisation);
@@ -50,7 +50,7 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		String existingOrg = "pool-test-org";
 
 		// When
-		Organisation organisation = subject.findByOrganisationShortName(existingOrg);
+		Organisation organisation = subject.findByOrganisationCode(existingOrg);
 
 		// Then
 		Assert.assertNotNull(organisation);

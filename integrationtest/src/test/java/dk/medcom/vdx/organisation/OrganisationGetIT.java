@@ -89,20 +89,20 @@ public class OrganisationGetIT extends AbstractIntegrationTest {
 		// Then
 		Assert.assertNotNull(orgs);
 		Assert.assertEquals(1, orgs.size());
-		Assert.assertEquals(orgs.get(0).getShortName(), TEST_ORGANISATION_A);
+		Assert.assertEquals(orgs.get(0).getCode(), TEST_ORGANISATION_A);
 	}
 	
 	@Test
-	public void testGetOrganisationFromShortWithUser() throws ApiException {
+	public void testGetOrganisationFromCodeWithRegularUser() throws ApiException {
 
 		// Given
 		setUserContext(apiClient, new String[]{ TEST_ROLE_USER_1 }, TEST_ORGANISATION_A);
 
 		// When
-		Organisation org = subject.servicesOrganisationShortNameGet(TEST_ORGANISATION_A);
+		Organisation org = subject.servicesOrganisationCodeGet(TEST_ORGANISATION_A);
 		
 		// Then
 		Assert.assertNotNull(org);
-		Assert.assertEquals(org.getShortName(), TEST_ORGANISATION_A);
+		Assert.assertEquals(org.getCode(), TEST_ORGANISATION_A);
 	}
 }

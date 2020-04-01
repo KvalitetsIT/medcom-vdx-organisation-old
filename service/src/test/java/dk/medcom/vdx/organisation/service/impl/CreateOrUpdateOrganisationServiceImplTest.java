@@ -18,8 +18,8 @@ import dk.medcom.vdx.organisation.repository.RepositoryTest;
 
 public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 
-	static final String ORG_A_SHORTNAME = "orga";
-	static final String ORG_B_SHORTNAME = "orgb";
+	static final String ORG_A_CODE = "orga";
+	static final String ORG_B_CODE = "orgb";
 
 	UserContextService userWithNoOrganisationContext;
 	UserContextService userFromOrgAContext;
@@ -40,7 +40,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 			}
 			@Override
 			public String getOrganisation() {
-				return ORG_A_SHORTNAME;
+				return ORG_A_CODE;
 			}
 		};
 
@@ -62,7 +62,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 			}
 			@Override
 			public String getOrganisation() {
-				return ORG_B_SHORTNAME;
+				return ORG_B_CODE;
 			}
 		};
 	}
@@ -72,11 +72,11 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		
 		// Given
 		final String NEW_NAME = "Name";
-		final String NEW_SHORT_NAME = "123orgtest87654";
+		final String NEW_CODE = "123orgtest87654";
 		final int NEW_POOL_SIZE = 100;
 		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		OrganisationDto toCreate = new OrganisationDto();
-		toCreate.setShortName(NEW_SHORT_NAME);
+		toCreate.setCode(NEW_CODE);
 		toCreate.setName(NEW_NAME);
 		toCreate.setPoolSize(NEW_POOL_SIZE);
 
@@ -85,7 +85,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		
 		// Then
 		Assert.assertNotNull(newOrg);
-		Assert.assertEquals(NEW_SHORT_NAME, newOrg.getShortName());
+		Assert.assertEquals(NEW_CODE, newOrg.getCode());
 		Assert.assertEquals(NEW_NAME, newOrg.getName());
 		Assert.assertEquals(NEW_POOL_SIZE, newOrg.getPoolSize());
 	}
@@ -97,7 +97,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		final String NEW_NAME = "New fancy name xyz";
 		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		OrganisationDto toUpdate = new OrganisationDto();
-		toUpdate.setShortName(ORG_A_SHORTNAME);
+		toUpdate.setCode(ORG_A_CODE);
 		toUpdate.setName(NEW_NAME);
 		toUpdate.setPoolSize(200);
 
@@ -106,7 +106,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		
 		// Then
 		Assert.assertNotNull(newOrgA);
-		Assert.assertEquals(ORG_A_SHORTNAME, newOrgA.getShortName());
+		Assert.assertEquals(ORG_A_CODE, newOrgA.getCode());
 		Assert.assertEquals(NEW_NAME, newOrgA.getName());
 		Assert.assertEquals(200, newOrgA.getPoolSize());
 	}
@@ -118,7 +118,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		final String NEW_NAME = "New fancy name";
 		subject = new CreateOrUpdateOrganisationServiceImpl(userFromOrgAContext, organisationDao);
 		OrganisationDto toUpdate = new OrganisationDto();
-		toUpdate.setShortName(ORG_A_SHORTNAME);
+		toUpdate.setCode(ORG_A_CODE);
 		toUpdate.setName(NEW_NAME);
 		toUpdate.setPoolSize(100);
 
@@ -127,7 +127,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		
 		// Then
 		Assert.assertNotNull(newOrgA);
-		Assert.assertEquals(ORG_A_SHORTNAME, newOrgA.getShortName());
+		Assert.assertEquals(ORG_A_CODE, newOrgA.getCode());
 		Assert.assertEquals(NEW_NAME, newOrgA.getName());
 		Assert.assertEquals(100, newOrgA.getPoolSize());
 	}
@@ -139,7 +139,7 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		final String NEW_NAME = "New fancy name";
 		subject = new CreateOrUpdateOrganisationServiceImpl(userFromOrgBContext, organisationDao);
 		OrganisationDto toUpdate = new OrganisationDto();
-		toUpdate.setShortName(ORG_A_SHORTNAME);
+		toUpdate.setCode(ORG_A_CODE);
 		toUpdate.setName(NEW_NAME);
 		toUpdate.setPoolSize(100);
 		

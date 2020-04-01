@@ -8,13 +8,13 @@ public interface OrganisationDao {
 
 	List<Organisation> findOrganisations();
 
-	List<Organisation> findOrganisations(String topOrganisationShortName);
+	List<Organisation> findOrganisations(String topOrganisationCode);
 
-	Organisation findByOrganisationShortName(String organisationShortName);
+	Organisation findByOrganisationCode(String organisationCode);
 
 	List<Organisation> findByPoolSizeNotNull();
 	
-	Organisation updateOrganisationWithShortName(String organisationShortName, String organisationName, int poolSize);
+	Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize);
 
-	Organisation createOrganisation(String organisationShortName, String organisationName, int poolSize);
+	Organisation createOrganisation(String organisationCode, String organisationName, int poolSize);
 }

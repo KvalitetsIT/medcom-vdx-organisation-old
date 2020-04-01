@@ -4,7 +4,7 @@ public class OrganisationDto {
 
 	int poolSize;
 	
-	String shortName;
+	String code;
 	
 	String name;
 
@@ -16,12 +16,12 @@ public class OrganisationDto {
 		this.poolSize = poolSize;
 	}
 
-	public String getShortName() {
-		return shortName;
+	public String getCode() {
+		return code;
 	}
 
-	public void setShortName(String shortName) {
-		this.shortName = shortName;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public String getName() {

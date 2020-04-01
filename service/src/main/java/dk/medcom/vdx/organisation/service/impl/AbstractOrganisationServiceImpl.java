@@ -21,7 +21,7 @@ public class AbstractOrganisationServiceImpl {
 	public OrganisationDto mapFromEntity(Organisation organisation) {
 		if (organisation != null) {
 			OrganisationDto organisationDto = new OrganisationDto();
-			organisationDto.setShortName(organisation.getOrganisationId());
+			organisationDto.setCode(organisation.getOrganisationId());
 			organisationDto.setName(organisation.getName());
 			organisationDto.setPoolSize(organisation.getPoolSize());
 			return organisationDto;

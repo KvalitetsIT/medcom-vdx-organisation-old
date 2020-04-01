@@ -9,7 +9,7 @@ import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 
 public interface FindOrganisationService {
 
-	public OrganisationDto findOrganisationFromShortName(String shortName) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException;
+	public OrganisationDto findOrganisationFromCode(String code) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException;
 
 	public List<OrganisationDto> findOrganisations() throws PermissionDeniedException;
 }

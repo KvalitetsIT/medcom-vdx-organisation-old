@@ -18,8 +18,8 @@ import dk.medcom.vdx.organisation.repository.RepositoryTest;
 
 public class FindOrganisationServiceImplTest extends RepositoryTest {
 
-	static final String ORG_A_SHORTNAME = "orga";
-	static final String ORG_B_SHORTNAME = "orgb";
+	static final String ORG_A_CODE = "orga";
+	static final String ORG_B_CODE = "orgb";
 
 	UserContextService userWithNoOrganisationContext;
 	UserContextService userFromOrgAContext;
@@ -40,7 +40,7 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 			}
 			@Override
 			public String getOrganisation() {
-				return ORG_A_SHORTNAME;
+				return ORG_A_CODE;
 			}
 		};
 
@@ -62,7 +62,7 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 			}
 			@Override
 			public String getOrganisation() {
-				return ORG_B_SHORTNAME;
+				return ORG_B_CODE;
 			}
 		};
 	}
@@ -74,7 +74,7 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
 		
 		// When
-		subject.findOrganisationFromShortName(ORG_B_SHORTNAME);
+		subject.findOrganisationFromCode(ORG_B_CODE);
 		
 		// Then
 	}
@@ -86,11 +86,11 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
 		
 		// When
-		OrganisationDto orgA = subject.findOrganisationFromShortName(ORG_A_SHORTNAME);
+		OrganisationDto orgA = subject.findOrganisationFromCode(ORG_A_CODE);
 		
 		// Then
 		Assert.assertNotNull(orgA);
-		Assert.assertEquals(ORG_A_SHORTNAME, orgA.getShortName());
+		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
 		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
 	}
 
@@ -101,11 +101,11 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		
 		// When
-		OrganisationDto orgA = subject.findOrganisationFromShortName(ORG_A_SHORTNAME);
+		OrganisationDto orgA = subject.findOrganisationFromCode(ORG_A_CODE);
 		
 		// Then
 		Assert.assertNotNull(orgA);
-		Assert.assertEquals(ORG_A_SHORTNAME, orgA.getShortName());
+		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
 		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
 	}
 

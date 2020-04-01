@@ -2,8 +2,6 @@ package dk.medcom.vdx.organisation.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +44,14 @@ public class OrganisationController {
 	}
 
 	@APISecurityAnnotation({ UserRole.USER, UserRole.ADMIN, UserRole.PROVISIONER })
-	@RequestMapping(value = "/services/organisation/{shortName}", method = RequestMethod.GET)
-	public OrganisationDto getOrganisation(@PathVariable("shortName")String shortName) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
-		LOGGER.debug("Enter getOrganisation(shortName: "+shortName+")");
+	@RequestMapping(value = "/services/organisation/{code}", method = RequestMethod.GET)
+	public OrganisationDto getOrganisation(@PathVariable("code")String code) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		LOGGER.debug("Enter getOrganisation(code: "+code+")");
 		try {
-			OrganisationDto organisation = findOrganisationService.findOrganisationFromShortName(shortName);
+			OrganisationDto organisation = findOrganisationService.findOrganisationFromCode(code);
 			return organisation;
 		} finally {
-			LOGGER.debug("Done getOrganisation(shortName: "+shortName+")");
+			LOGGER.debug("Done getOrganisation(code: "+code+")");
 		}
 	}
 	
@@ -66,6 +64,18 @@ public class OrganisationController {
 			return organisation;
 		} finally {
 			LOGGER.debug("Done createOrganisation(toCreate: "+toCreate+")");
+		}
+	}
+	
+	@APISecurityAnnotation({ UserRole.ADMIN, UserRole.PROVISIONER })
+	@RequestMapping(value = "/services/organisation", method = RequestMethod.PUT)
+	public OrganisationDto updateOrganisation(/*@Valid*/ @RequestBody OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException {
+		LOGGER.debug("Enter updateOrganisation(toUpdate: "+toUpdate+")");
+		try {
+			OrganisationDto organisation = createOrUpdateOrganisationService.updateOrganisation(toUpdate);
+			return organisation;
+		} finally {
+			LOGGER.debug("Done updateOrganisation(toUpdate: "+toUpdate+")");
 		}
 	}
 }

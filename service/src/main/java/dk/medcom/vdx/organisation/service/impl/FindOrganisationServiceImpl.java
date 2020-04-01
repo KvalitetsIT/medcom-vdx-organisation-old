@@ -27,20 +27,20 @@ public class FindOrganisationServiceImpl extends AbstractOrganisationServiceImpl
 	}
 	
 	@Override
-	public OrganisationDto findOrganisationFromShortName(String shortName) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public OrganisationDto findOrganisationFromCode(String code) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
 		
-		if (shortName == null || shortName.length() == 0) {
-			throw new BadRequestException("'shortName' must be provided in search");
+		if (code == null || code.length() == 0) {
+			throw new BadRequestException("'code' must be provided in search");
 		}
 		
 		String userOrganisation = userContextService.getOrganisation();
-		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, shortName)) {
-			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+shortName+"'");
+		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, code)) {
+			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+code+"'");
 		}
 		
-		Organisation foundOrg = organisationDao.findByOrganisationShortName(shortName);
+		Organisation foundOrg = organisationDao.findByOrganisationCode(code);
 		if (foundOrg == null) {
-			throw new RessourceNotFoundException("organisation", "shortname");
+			throw new RessourceNotFoundException("organisation", "code");
 		}
 		return mapFromEntity(foundOrg);
 	}

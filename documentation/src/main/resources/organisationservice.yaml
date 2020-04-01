@@ -94,14 +94,14 @@ paths:
           $ref: '#/components/responses/403'      
         '404':
           $ref: '#/components/responses/404'      
-  /services/organisation/{shortName}:
+  /services/organisation/{code}:
     get:
       tags:
         - Organisation
       summary: Get a specific organisation
-      description: Get a specific organisation identified by its short name
+      description: Get a specific organisation identified by its code
       parameters: 
-       - name: shortName
+       - name: code
          in: path
          required: true
          schema:
@@ -124,9 +124,9 @@ paths:
       tags:
         - Organisation
       summary: Deletes a specific organisation
-      description: Delete a specific organisation identified by its short name
+      description: Delete a specific organisation identified by its code
       parameters: 
-       - name: shortName
+       - name: code
          in: path
          required: true
          schema:
@@ -190,12 +190,12 @@ components:
     organisation:
       type: object
       required:
-      - shortName
+      - code
       - name
       - poolSize
       properties:
-        shortName:
-          description: The short name that uniquely identifies an organisation
+        code:
+          description: The code that uniquely identifies an organisation
           type: string
           maxLength: 100
           example: organisation_a

@@ -24,13 +24,13 @@ public class OrganisationPostIT extends AbstractIntegrationTest {
 	}
 
 	@Test(expected = ApiException.class)
-	public void testPostOrganisationsWithUser() throws ApiException {
+	public void testPostOrganisationsWithRegularUser() throws ApiException {
 
 		// Given
-		String shortNameOrg = "org"+UUID.randomUUID();
-		setUserContext(apiClient, new String[]{ TEST_ROLE_USER_1 }, shortNameOrg);
+		String code = "org"+UUID.randomUUID();
+		setUserContext(apiClient, new String[]{ TEST_ROLE_USER_1 }, code);
 		Organisation organisation = new Organisation();
-		organisation.setShortName(shortNameOrg);
+		organisation.setCode(code);
 		organisation.setName("Org");
 		organisation.setPoolSize(100);
 
@@ -49,10 +49,10 @@ public class OrganisationPostIT extends AbstractIntegrationTest {
 	public void testPostOrganisationsWithAdmin() throws ApiException {
 
 		// Given
-		String shortNameOrg = "org"+UUID.randomUUID();
-		setUserContext(apiClient, new String[]{ TEST_ROLE_ADMIN }, shortNameOrg);
+		String code = "org"+UUID.randomUUID();
+		setUserContext(apiClient, new String[]{ TEST_ROLE_ADMIN }, code);
 		Organisation organisation = new Organisation();
-		organisation.setShortName(shortNameOrg);
+		organisation.setCode(code);
 		organisation.setName("Org");
 		organisation.setPoolSize(100);
 
@@ -61,7 +61,7 @@ public class OrganisationPostIT extends AbstractIntegrationTest {
 		
 		// Then
 		Assert.assertNotNull(result);
-		Assert.assertEquals(result.getShortName(), shortNameOrg);
+		Assert.assertEquals(result.getCode(), code);
 		Assert.assertEquals(result.getName(), organisation.getName());
 		Assert.assertEquals(result.getPoolSize(), organisation.getPoolSize());
 	}
@@ -72,7 +72,7 @@ public class OrganisationPostIT extends AbstractIntegrationTest {
 		// Given
 		setUserContext(apiClient, new String[]{ TEST_ROLE_ADMIN }, TEST_ORGANISATION_A);
 		Organisation organisation = new Organisation();
-		organisation.setShortName(TEST_ORGANISATION_A);
+		organisation.setCode(TEST_ORGANISATION_A);
 		organisation.setName("Org");
 		organisation.setPoolSize(100);
 

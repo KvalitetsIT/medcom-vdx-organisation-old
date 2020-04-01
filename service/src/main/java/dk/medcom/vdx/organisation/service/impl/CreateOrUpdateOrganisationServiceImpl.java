@@ -28,11 +28,11 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		validateOrganisationInput(toUpdate);
 		
 		String userOrganisation = userContextService.getOrganisation();
-		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toUpdate.getShortName())) {
-			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toUpdate.getShortName()+"'");
+		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toUpdate.getCode())) {
+			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toUpdate.getCode()+"'");
 		}
 
-		Organisation updated = organisationDao.updateOrganisationWithShortName(toUpdate.getShortName(), toUpdate.getName(), toUpdate.getPoolSize());
+		Organisation updated = organisationDao.updateOrganisationWithCode(toUpdate.getCode(), toUpdate.getName(), toUpdate.getPoolSize());
 		return mapFromEntity(updated);
 	}
 	
@@ -42,17 +42,17 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		validateOrganisationInput(toCreate);
 		
 		String userOrganisation = userContextService.getOrganisation();
-		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toCreate.getShortName())) {
-			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toCreate.getShortName()+"'");
+		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toCreate.getCode())) {
+			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toCreate.getCode()+"'");
 		}
-		Organisation updated = organisationDao.createOrganisation(toCreate.getShortName(), toCreate.getName(), toCreate.getPoolSize());
+		Organisation updated = organisationDao.createOrganisation(toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
 		return mapFromEntity(updated);
 	}
 
 	public void validateOrganisationInput(OrganisationDto input) throws BadRequestException {
 		
-		if (input.getShortName() == null || input.getShortName().length() == 0) {
-			throw new BadRequestException("An organisation must have a 'shortName'");
+		if (input.getCode() == null || input.getCode().length() == 0) {
+			throw new BadRequestException("An organisation must have a 'code'");
 		}
 
 		if (input.getName() == null || input.getName().length() == 0) {
