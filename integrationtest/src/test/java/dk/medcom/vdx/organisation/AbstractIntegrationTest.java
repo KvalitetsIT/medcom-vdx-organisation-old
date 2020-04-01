@@ -83,20 +83,20 @@ public class AbstractIntegrationTest {
 
 		var resourcesContainerName = "medcom-vdx-organisation-resources";
 		var resourcesRunning = containerRunning(resourcesContainerName);
-		logger.info("Resourcer container is running: " + resourcesRunning);
+		logger.info("Resource container is running: " + resourcesRunning);
 
 		if(runInDocker) {
 			// OrganisationsAPI
-			organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev");
 			if(resourcesRunning) {
-				VolumesFrom volumesFrom = new VolumesFrom("sts-resources");
-				organisationService = new GenericContainer<>("kvalitetsit/sts:latest")
+				VolumesFrom volumesFrom = new VolumesFrom(resourcesContainerName);
+				organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
 						.withCreateContainerCmdModifier(modifier -> modifier.withVolumesFrom(volumesFrom))
-						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true,append=true");
+						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true,append=true -cp integrationtest.jar");
 			}
 			else {
-				organisationService.withFileSystemBind("/tmp", "/jacoco-report/")
-						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true");
+				organisationService = new GenericContainer<>("local/medcom-vdx-organisation-qa:dev")
+						.withFileSystemBind("/tmp", "/jacoco-report/")
+						.withEnv("JVM_OPTS", "-javaagent:/jacoco/jacocoagent.jar=output=file,destfile=/jacoco-report/jacoco-it.exec,dumponexit=true -cp integrationtest.jar");
 			}
 
 			organisationService.withNetwork(dockerNetwork)
@@ -115,7 +115,6 @@ public class AbstractIntegrationTest {
 
 					// Contains integrationtestdata
 					.withEnv("LOADER_PATH", "/app/lib")
-					.withEnv("JVM_OPTS", "-cp integrationtest.jar")
 
 					.withEnv("LOG_LEVEL", "DEBUG")
 
