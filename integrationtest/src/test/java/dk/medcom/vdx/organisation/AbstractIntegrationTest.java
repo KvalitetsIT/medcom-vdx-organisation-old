@@ -79,10 +79,11 @@ public class AbstractIntegrationTest {
 
 	private static void setupOrganisationService(MySQLContainer mysql) {
 		var runInDocker = Boolean.getBoolean("runInDocker");
-		logger.info("Running integration test in docker continer: " + runInDocker);
+		logger.info("Running integration test in docker container: " + runInDocker);
 
 		var resourcesContainerName = "medcom-vdx-organisation-resources";
 		var resourcesRunning = containerRunning(resourcesContainerName);
+		logger.info("Resourcer container is running: " + resourcesRunning);
 
 		if(runInDocker) {
 			// OrganisationsAPI

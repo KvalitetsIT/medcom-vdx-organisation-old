@@ -15,12 +15,18 @@ pipeline {
                     docker.build("build-medcom-vdx-organisation-resources", "-f ./integrationtest/docker/Dockerfile-resources --no-cache ./integrationtest/docker")
 
                     def resources = docker.image('build-medcom-vdx-organisation-resources')
-                    resources.run("--name medcom-vdx-organisation-resources")
+                    resources.run("--name medcom-vdx-organisation-resources --rm")
 
                     def maven = docker.image('maven:3-jdk-11')
                     maven.pull()
                     maven.inside("--volumes-from medcom-vdx-organisation-resources") {
+                        sh 'ls -al /'
+                        sh 'ls -al /jacoco-report'
+
                         sh 'mvn install -Pdocker-test'
+
+                        sh 'ls -al /'
+                        sh 'ls -al /jacoco-report'
                     }
 
                     junit '**/target/surefire-reports/*.xml'
