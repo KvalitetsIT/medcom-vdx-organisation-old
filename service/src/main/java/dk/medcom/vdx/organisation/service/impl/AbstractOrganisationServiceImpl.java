@@ -22,7 +22,7 @@ public class AbstractOrganisationServiceImpl {
 	public boolean isOrganisationPartOfAnyOrganisation(String organisationCodeToCheck, List<Organisation> ancestorsOrderedByDistance) {
 		
 		if (ancestorsOrderedByDistance == null || ancestorsOrderedByDistance.size() == 0) {
-			return true;
+			return false;
 		}
 		for (Organisation organisation : ancestorsOrderedByDistance) {
 			if (isOrganisationPartOfOrganisation(organisationCodeToCheck, organisation.getOrganisationId())) {

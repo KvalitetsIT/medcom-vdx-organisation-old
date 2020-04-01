@@ -16,7 +16,7 @@ public interface OrganisationDao {
 
 	List<Organisation> findByPoolSizeGreaterThanZero();
 	
-	Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize, List<Organisation> newAncestorsOrderedByDistanceClosestFirst);
+	Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize, List<Organisation> newAncestorsOrderedByDistanceClosestFirst, List<Organisation> oldAncestorsOrderedByDistanceClosestFirst);
 
 	Organisation createOrganisation(List<Organisation> ancestorsOrderedByDistanceClosestFirst, String organisationCode, String organisationName, int poolSize);
 }

@@ -20,7 +20,9 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 
 	static final String ORG_A_CODE = "org-a";
 	static final String ORG_B_CODE = "org-b";
+	static final String ORG_A_CODE_SUB = "sub-org-a";
 
+	
 	UserContextService userWithNoOrganisationContext;
 	UserContextService userFromOrgAContext;
 	UserContextService userFromOrgBContext;
@@ -90,6 +92,29 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		Assert.assertEquals(NEW_POOL_SIZE, newOrg.getPoolSize());
 	}
 
+	@Test
+	public void testThatUserWithNoOrgCanMoveSubAToB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		
+		// Given
+		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		OrganisationDto toUpdate = new OrganisationDto();
+		toUpdate.setCode(ORG_A_CODE_SUB);
+		toUpdate.setName("New name 123456789");
+		toUpdate.setPoolSize(200);
+		toUpdate.setParentCode(ORG_B_CODE);
+
+		// When
+		OrganisationDto newOrgUnderB = subject.updateOrganisation(toUpdate); 
+		
+		// Then
+		Assert.assertNotNull(newOrgUnderB);
+		Assert.assertEquals(ORG_A_CODE_SUB, newOrgUnderB.getCode());
+		Assert.assertEquals(toUpdate.getName(), newOrgUnderB.getName());
+		Assert.assertEquals(toUpdate.getPoolSize(), newOrgUnderB.getPoolSize());
+		Assert.assertEquals(ORG_B_CODE, newOrgUnderB.getParentCode());
+	}
+
+	
 	@Test
 	public void testThatUserWithNoOrgCanUpdateA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
 		

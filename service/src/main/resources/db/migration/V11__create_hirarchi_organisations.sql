@@ -5,5 +5,6 @@ CREATE TABLE org_hierarchy (
   distance int(4) NOT null,
   PRIMARY KEY (id),
   FOREIGN KEY (organisation_id) REFERENCES organisation(id),
-  FOREIGN KEY (parent_org_id) REFERENCES organisation(id)
+  FOREIGN KEY (parent_org_id) REFERENCES organisation(id),
+  UNIQUE KEY (parent_org_id, organisation_id)
 )

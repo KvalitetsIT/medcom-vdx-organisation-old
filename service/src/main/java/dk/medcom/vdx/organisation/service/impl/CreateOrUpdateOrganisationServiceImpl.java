@@ -30,15 +30,38 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		
 		List<Organisation> newAncestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toUpdate);
 		
-		String userOrganisation = userContextService.getOrganisation();
-		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toUpdate.getCode())) {
-			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toUpdate.getCode()+"'");
-		}
-		if (newAncestorsOrderedByDistanceClosestFirst != null && !noOrganisation(userOrganisation) && !isOrganisationPartOfAnyOrganisation(userOrganisation, newAncestorsOrderedByDistanceClosestFirst)) {
-			throw new PermissionDeniedException("The user does not have access to the parent organisation identified by '"+toUpdate.getParentCode()+"'");
+		Organisation orgToUpdate = organisationDao.findByOrganisationCode(toUpdate.getCode());
+		if (orgToUpdate == null) {
+			throw new RessourceNotFoundException("organisation", "code");
 		}
 
-		Organisation updated = organisationDao.updateOrganisationWithCode(toUpdate.getCode(), toUpdate.getName(), toUpdate.getPoolSize(), newAncestorsOrderedByDistanceClosestFirst);
+		// Check if the user belongs to the right organisations
+		String userOrganisation = userContextService.getOrganisation();
+		boolean updateIsOk = noOrganisation(userOrganisation);
+
+		boolean movingTheOrganisationInTheTree = (toUpdate.getParentCode() == null || toUpdate.getParentCode().strip().length() == 0 ? (orgToUpdate.getParentOrganisationCode() != null) : (toUpdate.getParentCode().compareTo(orgToUpdate.getParentOrganisationCode()) != 0));
+		List<Organisation> oldAncestorsOrderedByDistanceClosestFirst = null;
+		if (movingTheOrganisationInTheTree || !updateIsOk) {
+			oldAncestorsOrderedByDistanceClosestFirst = organisationDao.findAncestorsOrderedByDistanceClosestFirst(orgToUpdate.getParentOrganisationId());
+		}
+
+		if (!updateIsOk) {
+			updateIsOk = isOrganisationPartOfOrganisation(userOrganisation, orgToUpdate.getOrganisationId()) || isOrganisationPartOfAnyOrganisation(userOrganisation, oldAncestorsOrderedByDistanceClosestFirst);
+			
+			if (movingTheOrganisationInTheTree) {
+				updateIsOk = updateIsOk && (isOrganisationPartOfOrganisation(userOrganisation, toUpdate.getCode()) || isOrganisationPartOfAnyOrganisation(userOrganisation, newAncestorsOrderedByDistanceClosestFirst));
+			}
+		}
+
+		if (!updateIsOk) {
+			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toUpdate.getCode()+"' "+(movingTheOrganisationInTheTree ? "or the organisation identified by '"+toUpdate.getParentCode()+"'" : ""));
+		}
+
+		Organisation updated = organisationDao.updateOrganisationWithCode(toUpdate.getCode(), 
+				toUpdate.getName(), 
+				toUpdate.getPoolSize(), 
+				(movingTheOrganisationInTheTree ? newAncestorsOrderedByDistanceClosestFirst : null), 
+				(movingTheOrganisationInTheTree ? oldAncestorsOrderedByDistanceClosestFirst : null));
 		return mapFromEntity(updated);
 	}
 	

@@ -1,6 +1,7 @@
 package dk.medcom.vdx.organisation.dao.impl;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class JdbcOrganisationDao implements OrganisationDao {
 					+ "  left join org_hierarchy as h on o.id = h.organisation_id and h.distance = 1 "
 					+ "  left join organisation p on h.parent_org_id = p.id "
 					+ "    where o.organisation_id = :code";
-	//		var sql = "select o.* from organisation as o where o.organisation_id = :code";
+			//		var sql = "select o.* from organisation as o where o.organisation_id = :code";
 			NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 			return template.queryForObject(sql, new MapSqlParameterSource("code", organisationCode), organisationRowMapper);
 		}
@@ -79,17 +80,50 @@ public class JdbcOrganisationDao implements OrganisationDao {
 	}
 
 	@Override
-	public Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize, List<Organisation> newAncestorsOrderedByDistanceClosestFirst) {
-		var sql = "update organisation set name = :name, pool_size = :poolSize where organisation_id = :code";
+	public Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize, List<Organisation> newAncestorsOrderedByDistanceClosestFirst, List<Organisation> oldAncestorsOrderedByDistanceClosestFirst) {
+
+		Organisation  toUpdate = findByOrganisationCode(organisationCode);
+		var sql = "update organisation set name = :name, pool_size = :poolSize where id = :id";
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put("code", organisationCode);
+		parameterMap.put("id", toUpdate.getId());
 		parameterMap.put("poolSize", poolSize);
 		parameterMap.put("name", organisationName);
 		template.update(sql, new MapSqlParameterSource(parameterMap));
-		
-		//TODO: handle List<Organisation> newAncestorsOrderedByDistanceClosestFirst
-		
+
+		// Delete links to old ancestors from the node to update and the nodes below
+		if (oldAncestorsOrderedByDistanceClosestFirst != null && oldAncestorsOrderedByDistanceClosestFirst.size() > 0) {
+
+			List<Long> oldAncestorIds = new LinkedList<>();
+			for (Organisation oldAncestor : oldAncestorsOrderedByDistanceClosestFirst) {
+				oldAncestorIds.add(oldAncestor.getId());
+			}
+
+			NamedParameterJdbcTemplate deleteLinksTemplate = new NamedParameterJdbcTemplate(dataSource);
+			Map<String, Object> deleteLinksParameterMap = new HashMap<String, Object>();
+			deleteLinksParameterMap.put("id", toUpdate.getId());
+			deleteLinksParameterMap.put("oldAncestors", oldAncestorIds);
+			deleteLinksTemplate.update(
+					"delete h from org_hierarchy h"+
+					"  join org_hierarchy subs on h.organisation_id = subs.organisation_id and subs.parent_org_id = :id"+
+					" where h.parent_org_id in (:oldAncestors)", new MapSqlParameterSource(deleteLinksParameterMap));
+		}
+
+		// Insert links to new ancestors for the node to update and the nodes below
+		if (newAncestorsOrderedByDistanceClosestFirst != null && newAncestorsOrderedByDistanceClosestFirst.size() > 0) {
+
+			for (int i = 0; i < newAncestorsOrderedByDistanceClosestFirst.size(); i++) {
+				Map<String, Object> parameterMapToInsertLinksToNewAncestors = new HashMap<String, Object>();
+				parameterMapToInsertLinksToNewAncestors.put("add", i + 1);
+				parameterMapToInsertLinksToNewAncestors.put("id", toUpdate.getId());
+				parameterMapToInsertLinksToNewAncestors.put("parent", newAncestorsOrderedByDistanceClosestFirst.get(i).getId());
+				NamedParameterJdbcTemplate insertLinksTemplate = new NamedParameterJdbcTemplate(dataSource);
+				insertLinksTemplate.update("insert into org_hierarchy(organisation_id, parent_org_id, distance) "+
+						" select subs.organisation_id, :parent, subs.distance + :add "+
+						"   from org_hierarchy as subs "+
+			            " where subs.parent_org_id = :id", parameterMapToInsertLinksToNewAncestors);
+			}
+		}
 		return findByOrganisationCode(organisationCode);
 	}
 
@@ -109,7 +143,7 @@ public class JdbcOrganisationDao implements OrganisationDao {
 		insertHierarchyMyselfparameterMap.put("parent_org_id", createdId.longValue());
 		insertHierarchyMyselfparameterMap.put("distance", 0);
 		insertHierarchyPointToMyself.execute(new MapSqlParameterSource(insertHierarchyMyselfparameterMap));
-		
+
 		if (parentOrganisationsOrderedByDistance != null) {
 			for (int i = 0; i < parentOrganisationsOrderedByDistance.size(); i++) {
 				SimpleJdbcInsert insertHierarchyPointToAncestor = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
@@ -120,7 +154,7 @@ public class JdbcOrganisationDao implements OrganisationDao {
 				insertHierarchyPointToAncestor.execute(new MapSqlParameterSource(insertHierarchyPointToAncestorParameterMap));
 			}
 		}
-		
+
 		Organisation created = findByOrganisationCode(organisationCode);
 		return created;
 	}
