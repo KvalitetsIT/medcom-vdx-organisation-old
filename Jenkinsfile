@@ -20,13 +20,7 @@ pipeline {
                     def maven = docker.image('maven:3-jdk-11')
                     maven.pull()
                     maven.inside("--volumes-from medcom-vdx-organisation-resources") {
-                        sh 'ls -al /'
-                        sh 'ls -al /jacoco-report'
-
                         sh 'mvn install -Pdocker-test'
-
-                        sh 'ls -al /'
-                        sh 'ls -al /jacoco-report'
                     }
 
                     junit '**/target/surefire-reports/*.xml'
