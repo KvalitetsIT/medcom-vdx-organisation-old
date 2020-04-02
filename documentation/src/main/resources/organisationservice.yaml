@@ -5,6 +5,22 @@ info:
   version: "1.0.0"
   contact:
     email: development@kvalitetitsit.dk
+servers:
+  - url: '{protocol}://{environment}:{port}'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      environment:
+        enum:
+          - localhost # Docker-compose setup
+        default: localhost # Development
+      port:
+        enum:
+          - 8080
+        default: 8080
 paths:
   /info:
     get:

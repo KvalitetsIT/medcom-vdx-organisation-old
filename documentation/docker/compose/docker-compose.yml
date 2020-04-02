@@ -1,0 +1,39 @@
+version: '2.1'
+services:
+   mysql:
+     image: mysql:5.7
+     environment:
+      - MYSQL_ROOT_PASSWORD=rootroot
+      - MYSQL_DATABASE=organisationdb
+      - MYSQL_USER=orguser
+      - MYSQL_PASSWORD=secret1234
+   testfrontend:
+     image: kvalitetsit/gooioidwsrest:1.1.14
+     command:
+      - "-config"
+      - "/caddy/config.json"
+     volumes:
+      - ./frontend.json:/caddy/config.json
+     ports:
+      - 8080:80
+   organisationservice:
+     image: kvalitetsit/medcom-vdx-organisation:dev
+     environment:
+      - jdbc_url=jdbc:mysql://mysql:3306/organisationdb
+      - jdbc_user=orguser
+      - jdbc_pass=secret1234
+      - usercontext_header_name=X-Test-Auth
+
+      - userattributes_role_key=UserRoles
+      - userattributes_org_key=organisation
+
+      - userrole_admin_values=adminrole
+      - userrole_user_values=userrole1,userrole2
+      - userrole_monitor_values=monitorrole
+      - userrole_provisioner_values=provisionerrole
+   documenatation-and-test:
+     image: kvalitetsit/medcom-vdx-organisation-documentation:dev
+     environment:
+      - SWAGGER_JSON=/documentation/organisationservice.yaml
+     ports:
+      - 80:8080
