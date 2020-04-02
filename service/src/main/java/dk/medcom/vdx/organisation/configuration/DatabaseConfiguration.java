@@ -1,24 +1,16 @@
 package dk.medcom.vdx.organisation.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableAutoConfiguration
-@PropertySource("db.properties")
 @EnableTransactionManagement
 public class DatabaseConfiguration {
-
-	@Value("${jdbc.driverClassName}")
-	private String jdbcDriverClassName;
-
 	@Value("${jdbc.url}")
 	private String jdbcUrl;
 
@@ -31,7 +23,6 @@ public class DatabaseConfiguration {
 	@Bean
 	public DataSource dataSource() {
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(jdbcDriverClassName);
 		dataSource.setUrl(jdbcUrl);
 		dataSource.setUsername(jdbcUser);
 		dataSource.setPassword(jdbcPass);
