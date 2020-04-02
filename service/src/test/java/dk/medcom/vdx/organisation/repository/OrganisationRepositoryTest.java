@@ -70,13 +70,4 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		assertEquals("pool-test-org", organization.getOrganisationId());
 		assertEquals(10, organization.getPoolSize().intValue());
 	}
-
-	@Test
-	public void testFindOrganisationNullPool() {
-		var organisation = subject.findByOrganisationCode("kvak");
-
-		assertNotNull(organisation);
-		assertEquals("kvak", organisation.getOrganisationId());
-		assertNull(organisation.getPoolSize());
-	}
 }
