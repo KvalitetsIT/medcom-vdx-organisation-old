@@ -32,14 +32,17 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://kitdocker.kvalitetsit.dk/') {
-                        docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}").push("${env.GIT_COMMIT}")
+                        image = docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}")
+                        image.push("${env.GIT_COMMIT}")
+                        image.push("dev")
+
+                        if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*") {
+                            echo "Tagging version"
+                            image.push(env.TAG_NAME.substring(1))
+                            image.push("latest")
+                        }
                     }
                 }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying.... ${env.GIT_COMMIT}'
             }
         }
     }
