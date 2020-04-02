@@ -1,10 +1,5 @@
 package dk.medcom.vdx.organisation.service.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import dk.medcom.vdx.organisation.api.OrganisationDto;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
@@ -13,14 +8,18 @@ import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.FindOrganisationService;
+import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
+import java.util.List;
+
+@Component
 public class FindOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements FindOrganisationService {
 
 	private UserContextService userContextService;
 
 	private OrganisationDao organisationDao;
 	
-	@Autowired
 	public FindOrganisationServiceImpl(UserContextService userContextService, OrganisationDao organisationDao) {
 		this.userContextService = userContextService;
 		this.organisationDao = organisationDao;

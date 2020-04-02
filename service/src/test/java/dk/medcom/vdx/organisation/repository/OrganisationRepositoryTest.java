@@ -1,8 +1,5 @@
 package dk.medcom.vdx.organisation.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.List;
 
 import org.junit.Assert;
@@ -13,6 +10,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
+
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class OrganisationRepositoryTest extends RepositoryTest {
@@ -70,5 +69,14 @@ public class OrganisationRepositoryTest extends RepositoryTest {
 		assertEquals("company name another-test-org", organization.getName());
 		assertEquals("pool-test-org", organization.getOrganisationId());
 		assertEquals(10, organization.getPoolSize().intValue());
+	}
+
+	@Test
+	public void testFindOrganisationNullPool() {
+		var organisation = subject.findByOrganisationCode("kvak");
+
+		assertNotNull(organisation);
+		assertEquals("kvak", organisation.getOrganisationId());
+		assertNull(organisation.getPoolSize());
 	}
 }

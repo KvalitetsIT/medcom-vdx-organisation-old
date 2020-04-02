@@ -169,6 +169,6 @@ public class JdbcOrganisationDao implements OrganisationDao {
 				+ "where h.organisation_id = :orgId "
 				+ "  order by h.distance asc";
 		var template = new NamedParameterJdbcTemplate(dataSource);
-		return template.query(sql, new MapSqlParameterSource("orgId", organisationId),  organisationRowMapper);
+		return template.query(sql, new MapSqlParameterSource("orgId", organisationId), organisationRowMapper);
 	}
 }
