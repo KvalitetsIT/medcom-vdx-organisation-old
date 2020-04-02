@@ -11,8 +11,12 @@ import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.FindOrganisationService;
+import org.springframework.stereotype.Service;
 
-@Component
+import java.util.LinkedList;
+import java.util.List;
+
+@Service
 public class FindOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements FindOrganisationService {
 
 	private UserContextService userContextService;

@@ -12,8 +12,13 @@ import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component
+import java.util.List;
+
+@Service
+@Transactional
 public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements CreateOrUpdateOrganisationService {
 
 	private UserContextService userContextService;
@@ -79,8 +84,7 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		return created;
 	}
 
-	public List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {
-		
+	private List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {
 		if (input.getCode() == null || input.getCode().length() == 0) {
 			throw new BadRequestException("An organisation must have a 'code'");
 		}
@@ -98,9 +102,8 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 			if (parent == null) {
 				throw new RessourceNotFoundException("organisation", "parentCode");
 			}
-			
-			List<Organisation> ancestorsOrderedByDistanceClosestFirst = organisationDao.findAncestorsOrderedByDistanceClosestFirst(parent.getId());
-			return ancestorsOrderedByDistanceClosestFirst;
+
+			return organisationDao.findAncestorsOrderedByDistanceClosestFirst(parent.getId());
 		}
 		return null;
 	}
