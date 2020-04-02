@@ -2,7 +2,10 @@ package dk.medcom.vdx.organisation.service.impl;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dk.medcom.vdx.organisation.api.OrganisationDto;
 import dk.medcom.vdx.organisation.context.UserContextService;
@@ -12,14 +15,12 @@ import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
 public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements CreateOrUpdateOrganisationService {
+
+	private static Logger LOGGER = LoggerFactory.getLogger(CreateOrUpdateOrganisationServiceImpl.class);
 
 	private UserContextService userContextService;
 
@@ -37,14 +38,16 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		
 		Organisation orgToUpdate = organisationDao.findByOrganisationCode(toUpdate.getCode());
 		if (orgToUpdate == null) {
-			throw new RessourceNotFoundException("organisation", "code");
+			String message = "The code: "+toUpdate.getCode()+" does not identify an organisation";
+			LOGGER.info(message);
+			throw new RessourceNotFoundException(message);
 		}
 
 		// Check if the user belongs to the right organisations
 		String userOrganisation = userContextService.getOrganisation();
 		boolean updateIsOk = noOrganisation(userOrganisation);
 
-		boolean movingTheOrganisationInTheTree = (toUpdate.getParentCode() == null || toUpdate.getParentCode().strip().length() == 0 ? (orgToUpdate.getParentOrganisationCode() != null) : (toUpdate.getParentCode().compareTo(orgToUpdate.getParentOrganisationCode()) != 0));
+		boolean movingTheOrganisationInTheTree = (toUpdate.getParentCode() == null || toUpdate.getParentCode().strip().length() == 0 ? (orgToUpdate.getParentOrganisationCode() != null) : (orgToUpdate.getParentOrganisationCode() != null && toUpdate.getParentCode().compareTo(orgToUpdate.getParentOrganisationCode()) != 0));
 		List<Organisation> oldAncestorsOrderedByDistanceClosestFirst = null;
 		if (movingTheOrganisationInTheTree || !updateIsOk) {
 			oldAncestorsOrderedByDistanceClosestFirst = organisationDao.findAncestorsOrderedByDistanceClosestFirst(orgToUpdate.getParentOrganisationId());
@@ -59,7 +62,9 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		}
 
 		if (!updateIsOk) {
-			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toUpdate.getCode()+"' "+(movingTheOrganisationInTheTree ? "or the organisation identified by '"+toUpdate.getParentCode()+"'" : ""));
+			String message = "The user does not have access to the organisation identified by '"+toUpdate.getCode()+"' "+(movingTheOrganisationInTheTree ? "or the organisation identified by '"+toUpdate.getParentCode()+"'" : "");
+			LOGGER.info(message);
+			throw new PermissionDeniedException(message);
 		}
 
 		Organisation updated = organisationDao.updateOrganisationWithCode(toUpdate.getCode(), 
@@ -77,7 +82,9 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		
 		String userOrganisation = userContextService.getOrganisation();
 		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, toCreate.getCode()) && !isOrganisationPartOfAnyOrganisation(userOrganisation, ancestorsOrderedByDistanceClosestFirst)) {
-			throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+toCreate.getCode()+"'");
+			String message = "The user does not have access to the organisation identified by '"+toCreate.getCode()+"'";
+			LOGGER.info(message);
+			throw new PermissionDeniedException(message);
 		}
 		
 		Organisation created = organisationDao.createOrganisation(ancestorsOrderedByDistanceClosestFirst, toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
@@ -86,21 +93,29 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 
 	private List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {
 		if (input.getCode() == null || input.getCode().length() == 0) {
-			throw new BadRequestException("An organisation must have a 'code'");
+			String message = "An organisation must have a 'code'";
+			LOGGER.info(message);
+			throw new BadRequestException(message);
 		}
 
 		if (input.getName() == null || input.getName().length() == 0) {
-			throw new BadRequestException("An organisation must have a 'name'");
+			String message = "An organisation must have a 'name'";
+			LOGGER.info(message);
+			throw new BadRequestException(message);
 		}
 
 		if (input.getPoolSize() < 0) {
-			throw new BadRequestException("An organisation must have a 'poolSize' > 0");
+			String message = "An organisation must have a 'poolSize' > 0";
+			LOGGER.info(message);
+			throw new BadRequestException(message);
 		}
 		
 		if (input.getParentCode() != null && input.getParentCode().strip().length() > 0) {
 			Organisation parent = organisationDao.findByOrganisationCode(input.getParentCode());
 			if (parent == null) {
-				throw new RessourceNotFoundException("organisation", "parentCode");
+				String message = "The code '"+input.getParentCode()+"' does not identify an organisation";
+				LOGGER.info(message);
+				throw new RessourceNotFoundException(message);
 			}
 
 			return organisationDao.findAncestorsOrderedByDistanceClosestFirst(parent.getId());

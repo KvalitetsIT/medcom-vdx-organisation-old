@@ -2,7 +2,9 @@ package dk.medcom.vdx.organisation.service.impl;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
@@ -11,13 +13,11 @@ import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.FindOrganisationService;
-import org.springframework.stereotype.Service;
-
-import java.util.LinkedList;
-import java.util.List;
 
 @Service
 public class FindOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements FindOrganisationService {
+
+	private static Logger LOGGER = LoggerFactory.getLogger(FindOrganisationServiceImpl.class);
 
 	private UserContextService userContextService;
 
@@ -38,11 +38,15 @@ public class FindOrganisationServiceImpl extends AbstractOrganisationServiceImpl
 	public Organisation findOrganisationFromCode(String code, boolean checkAccess) throws BadRequestException, RessourceNotFoundException, PermissionDeniedException {
 
 		if (code == null || code.length() == 0) {
-			throw new BadRequestException("'code' must be provided in search");
+			String message = "'code' must be provided in search";
+			LOGGER.info(message);
+			throw new BadRequestException(message);
 		}
 		Organisation foundOrg = organisationDao.findByOrganisationCode(code);
 		if (foundOrg == null) {
-			throw new RessourceNotFoundException("organisation", "code");
+			String message = "The code: "+code+" does not identify an organisation";
+			LOGGER.info(message);
+			throw new RessourceNotFoundException(message);
 		}
 
 		// Check if access is ok
@@ -53,7 +57,9 @@ public class FindOrganisationServiceImpl extends AbstractOrganisationServiceImpl
 				ancestorsOrderedByDistanceClosestFirst = organisationDao.findAncestorsOrderedByDistanceClosestFirst(foundOrg.getParentOrganisationId());
 			}
 			if (!isAccessOk(userOrganisation, foundOrg, ancestorsOrderedByDistanceClosestFirst)) {			
-				throw new PermissionDeniedException("The user does not have access to the organisation identified by '"+code+"'");
+				String message = "The user does not have access to the organisation identified by '"+code+"'";
+				LOGGER.info(message);
+				throw new PermissionDeniedException(message);
 			}
 		}
 		return foundOrg;

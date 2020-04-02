@@ -11,10 +11,14 @@ public class RessourceNotFoundException extends Exception {
 	private String ressource;
 	
 	private String field;
+
+	public RessourceNotFoundException(String message) {
+		super(message);
+	}
 	
 	public RessourceNotFoundException(String ressource, String field) {
 		this.ressource = ressource;
-		this.field = field;
+		this.field = field;		
 	}
 
 	public String getRessource() {
