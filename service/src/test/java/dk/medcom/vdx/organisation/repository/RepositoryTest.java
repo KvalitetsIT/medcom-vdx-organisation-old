@@ -1,7 +1,5 @@
 package dk.medcom.vdx.organisation.repository;
 
-import dk.medcom.vdx.organisation.configuration.DatabaseConfiguration;
-import dk.medcom.vdx.organisation.configuration.TestConfiguration;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.PropertySource;
@@ -10,6 +8,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.MySQLContainer;
+
+import dk.medcom.vdx.organisation.configuration.DatabaseConfiguration;
+import dk.medcom.vdx.organisation.configuration.TestConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @PropertySource("test.properties")

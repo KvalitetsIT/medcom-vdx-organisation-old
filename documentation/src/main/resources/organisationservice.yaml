@@ -141,6 +141,51 @@ paths:
           $ref: '#/components/responses/403'      
         '404':
           $ref: '#/components/responses/404'
+  /services/organisationtree/{code}:
+    get:
+      tags:
+        - Organisation
+      summary: Get a specific part of the organisation tree
+      description: Get a specific organisation tree (rooted at the specified code)
+      parameters: 
+       - name: code
+         in: path
+         required: false
+         schema:
+          type: string
+         example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'      
+        '404':
+          $ref: '#/components/responses/404'
+  /services/organisationtree:
+    get:
+      tags:
+        - Organisation
+      summary: Get all organisation trees
+      description: Get all organisation trees (available for the calling user)
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/organisationtree'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'      
 components:
   responses:
     '400':
@@ -197,3 +242,30 @@ components:
           type: integer
           format: int32
           example: 200
+    organisationtree:
+      type: object
+      required:
+      - code
+      - name
+      - poolSize
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 100
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        children:
+          description: The suborganisations of this organisation
+          type: array
+          items:
+            $ref: '#/components/schemas/organisationtree'

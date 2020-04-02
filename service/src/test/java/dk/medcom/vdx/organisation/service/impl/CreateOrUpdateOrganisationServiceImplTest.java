@@ -11,12 +11,13 @@ import dk.medcom.vdx.organisation.api.OrganisationDto;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.repository.RepositoryTest;
 
-public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
+public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 
 	static final String ORG_A_CODE = "org-a";
 	static final String ORG_B_CODE = "org-b";
@@ -83,13 +84,13 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		toCreate.setPoolSize(NEW_POOL_SIZE);
 
 		// When
-		OrganisationDto newOrg = subject.createOrganisation(toCreate); 
+		Organisation newOrg = subject.createOrganisation(toCreate); 
 		
 		// Then
 		Assert.assertNotNull(newOrg);
-		Assert.assertEquals(NEW_CODE, newOrg.getCode());
+		Assert.assertEquals(NEW_CODE, newOrg.getOrganisationId());
 		Assert.assertEquals(NEW_NAME, newOrg.getName());
-		Assert.assertEquals(NEW_POOL_SIZE, newOrg.getPoolSize());
+		Assert.assertEquals(NEW_POOL_SIZE, newOrg.getPoolSize().intValue());
 	}
 
 	@Test
@@ -104,14 +105,14 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		toUpdate.setParentCode(ORG_B_CODE);
 
 		// When
-		OrganisationDto newOrgUnderB = subject.updateOrganisation(toUpdate); 
+		Organisation newOrgUnderB = subject.updateOrganisation(toUpdate); 
 		
 		// Then
 		Assert.assertNotNull(newOrgUnderB);
-		Assert.assertEquals(ORG_A_CODE_SUB, newOrgUnderB.getCode());
+		Assert.assertEquals(ORG_A_CODE_SUB, newOrgUnderB.getOrganisationId());
 		Assert.assertEquals(toUpdate.getName(), newOrgUnderB.getName());
-		Assert.assertEquals(toUpdate.getPoolSize(), newOrgUnderB.getPoolSize());
-		Assert.assertEquals(ORG_B_CODE, newOrgUnderB.getParentCode());
+		Assert.assertEquals(toUpdate.getPoolSize(), newOrgUnderB.getPoolSize().intValue());
+		Assert.assertEquals(ORG_B_CODE, newOrgUnderB.getParentOrganisationCode());
 	}
 
 	
@@ -127,13 +128,13 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		toUpdate.setPoolSize(200);
 
 		// When
-		OrganisationDto newOrgA = subject.updateOrganisation(toUpdate); 
+		Organisation newOrgA = subject.updateOrganisation(toUpdate); 
 		
 		// Then
 		Assert.assertNotNull(newOrgA);
-		Assert.assertEquals(ORG_A_CODE, newOrgA.getCode());
+		Assert.assertEquals(ORG_A_CODE, newOrgA.getOrganisationId());
 		Assert.assertEquals(NEW_NAME, newOrgA.getName());
-		Assert.assertEquals(200, newOrgA.getPoolSize());
+		Assert.assertEquals(200, newOrgA.getPoolSize().intValue());
 	}
 
 	@Test
@@ -148,14 +149,14 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		toUpdate.setPoolSize(100);
 
 		// When
-		OrganisationDto newOrgA = subject.updateOrganisation(toUpdate); 
+		Organisation newOrgA = subject.updateOrganisation(toUpdate); 
 		
 		// Then
 		Assert.assertNotNull(newOrgA);
-		Assert.assertEquals(ORG_A_CODE, newOrgA.getCode());
+		Assert.assertEquals(ORG_A_CODE, newOrgA.getOrganisationId());
 		Assert.assertEquals(NEW_NAME, newOrgA.getName());
-		Assert.assertEquals(100, newOrgA.getPoolSize());
-		Assert.assertNull(newOrgA.getParentCode());
+		Assert.assertEquals(100, newOrgA.getPoolSize().intValue());
+		Assert.assertNull(newOrgA.getParentOrganisationCode());
 	}
 
 	@Test(expected = PermissionDeniedException.class)
@@ -206,14 +207,14 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		toCreate.setParentCode(ORG_B_CODE);
 		
 		// When
-		OrganisationDto newOrg = subject.createOrganisation(toCreate);
+		Organisation newOrg = subject.createOrganisation(toCreate);
 		
 		// Then
 		Assert.assertNotNull(newOrg);
-		Assert.assertEquals(toCreate.getCode(), newOrg.getCode());
+		Assert.assertEquals(toCreate.getCode(), newOrg.getOrganisationId());
 		Assert.assertEquals(toCreate.getName(), newOrg.getName());
-		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize());
-		Assert.assertEquals(ORG_B_CODE, newOrg.getParentCode());
+		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize().intValue());
+		Assert.assertEquals(ORG_B_CODE, newOrg.getParentOrganisationCode());
 	}
 
 	@Test
@@ -229,13 +230,13 @@ public class CreateOrUpdateOrganisationServiceImplTest  extends RepositoryTest {
 		toCreate.setParentCode(ORG_B_CODE);
 		
 		// When
-		OrganisationDto newOrg = subject.createOrganisation(toCreate);
+		Organisation newOrg = subject.createOrganisation(toCreate);
 		
 		// Then
 		Assert.assertNotNull(newOrg);
-		Assert.assertEquals(toCreate.getCode(), newOrg.getCode());
+		Assert.assertEquals(toCreate.getCode(), newOrg.getOrganisationId());
 		Assert.assertEquals(toCreate.getName(), newOrg.getName());
-		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize());
-		Assert.assertEquals(ORG_B_CODE, newOrg.getParentCode());
+		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize().intValue());
+		Assert.assertEquals(ORG_B_CODE, newOrg.getParentOrganisationCode());
 	}
 }

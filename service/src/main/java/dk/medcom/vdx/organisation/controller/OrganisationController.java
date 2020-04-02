@@ -1,5 +1,6 @@
 package dk.medcom.vdx.organisation.controller;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import dk.medcom.vdx.organisation.api.OrganisationDto;
 import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserRole;
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
@@ -36,8 +38,8 @@ public class OrganisationController {
 	public List<OrganisationDto> getOrganisations() throws PermissionDeniedException {
 		LOGGER.debug("Enter getOrganisations");
 		try {
-			List<OrganisationDto> organisations = findOrganisationService.findOrganisations();
-			return organisations;
+			List<Organisation> organisations = findOrganisationService.findOrganisations();
+			return mapFromEntities(organisations, new LinkedList<OrganisationDto>());
 		} finally {
 			LOGGER.debug("Done getOrganisations");
 		}
@@ -48,8 +50,8 @@ public class OrganisationController {
 	public OrganisationDto getOrganisation(@PathVariable("code")String code) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
 		LOGGER.debug("Enter getOrganisation(code: "+code+")");
 		try {
-			OrganisationDto organisation = findOrganisationService.findOrganisationFromCode(code);
-			return organisation;
+			Organisation organisation = findOrganisationService.findOrganisationFromCode(code);
+			return mapFromEntity(organisation);
 		} finally {
 			LOGGER.debug("Done getOrganisation(code: "+code+")");
 		}
@@ -60,8 +62,8 @@ public class OrganisationController {
 	public OrganisationDto createOrganisation(/*@Valid*/ @RequestBody OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 		LOGGER.debug("Enter createOrganisation(toCreate: "+toCreate+")");
 		try {
-			OrganisationDto organisation = createOrUpdateOrganisationService.createOrganisation(toCreate);
-			return organisation;
+			Organisation organisation = createOrUpdateOrganisationService.createOrganisation(toCreate);
+			return mapFromEntity(organisation);
 		} finally {
 			LOGGER.debug("Done createOrganisation(toCreate: "+toCreate+")");
 		}
@@ -72,10 +74,34 @@ public class OrganisationController {
 	public OrganisationDto updateOrganisation(/*@Valid*/ @RequestBody OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 		LOGGER.debug("Enter updateOrganisation(toUpdate: "+toUpdate+")");
 		try {
-			OrganisationDto organisation = createOrUpdateOrganisationService.updateOrganisation(toUpdate);
-			return organisation;
+			Organisation organisation = createOrUpdateOrganisationService.updateOrganisation(toUpdate);
+			return mapFromEntity(organisation);
 		} finally {
 			LOGGER.debug("Done updateOrganisation(toUpdate: "+toUpdate+")");
 		}
+	}
+	
+	public OrganisationDto mapFromEntity(Organisation organisation) {
+		if (organisation != null) {
+			OrganisationDto organisationDto = new OrganisationDto();
+			organisationDto.setCode(organisation.getOrganisationId());
+			organisationDto.setName(organisation.getName());
+			organisationDto.setParentCode(organisation.getParentOrganisationCode());
+			organisationDto.setPoolSize(organisation.getPoolSize());
+			return organisationDto;
+		}
+		return null;
+	}
+	
+	public List<OrganisationDto> mapFromEntities(List<Organisation> organisations, List<OrganisationDto> result) {
+		
+		if (organisations == null || organisations.isEmpty()) {
+			return result;
+		}
+		
+		for (Organisation organisation : organisations) {
+			result.add(mapFromEntity(organisation));
+		}
+		return result;
 	}
 }

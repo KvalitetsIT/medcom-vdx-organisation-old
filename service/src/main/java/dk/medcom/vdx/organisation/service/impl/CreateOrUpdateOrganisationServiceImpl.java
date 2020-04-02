@@ -1,5 +1,9 @@
 package dk.medcom.vdx.organisation.service.impl;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import dk.medcom.vdx.organisation.api.OrganisationDto;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
@@ -8,9 +12,6 @@ import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationServiceImpl implements CreateOrUpdateOrganisationService {
@@ -25,7 +26,7 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 	}
 
 	@Override
-	public OrganisationDto updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+	public Organisation updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 		
 		List<Organisation> newAncestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toUpdate);
 		
@@ -61,11 +62,11 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 				toUpdate.getPoolSize(), 
 				(movingTheOrganisationInTheTree ? newAncestorsOrderedByDistanceClosestFirst : null), 
 				(movingTheOrganisationInTheTree ? oldAncestorsOrderedByDistanceClosestFirst : null));
-		return mapFromEntity(updated);
+		return updated;
 	}
 	
 	@Override
-	public OrganisationDto createOrganisation(OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+	public Organisation createOrganisation(OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
 
 		List<Organisation> ancestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toCreate);
 		
@@ -75,7 +76,7 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		}
 		
 		Organisation created = organisationDao.createOrganisation(ancestorsOrderedByDistanceClosestFirst, toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
-		return mapFromEntity(created);
+		return created;
 	}
 
 	public List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {

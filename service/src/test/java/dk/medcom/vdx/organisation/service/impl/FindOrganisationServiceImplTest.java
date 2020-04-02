@@ -9,10 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import dk.medcom.vdx.organisation.api.OrganisationDto;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.exceptions.BadRequestException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
@@ -89,13 +89,13 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
 		
 		// When
-		OrganisationDto orgA = subject.findOrganisationFromCode(ORG_A_CODE);
+		Organisation orgA = subject.findOrganisationFromCode(ORG_A_CODE);
 		
 		// Then
 		Assert.assertNotNull(orgA);
-		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
+		Assert.assertEquals(ORG_A_CODE, orgA.getOrganisationId());
 		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
-		Assert.assertNull(orgA.getParentCode());
+		Assert.assertNull(orgA.getParentOrganisationCode());
 	}
 
 	@Test
@@ -105,27 +105,27 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
 		
 		// When
-		List<OrganisationDto> orgs = subject.findOrganisations();
+		List<Organisation> orgs = subject.findOrganisations();
 		
 		// Then
 		Assert.assertNotNull(orgs);
 		Assert.assertEquals(2, orgs.size());
 		
-		Map<String, OrganisationDto> resultMap = new HashMap<String, OrganisationDto>();
-		for (OrganisationDto org : orgs) {
-			resultMap.put(org.getCode(), org);
+		Map<String, Organisation> resultMap = new HashMap<String, Organisation>();
+		for (Organisation org : orgs) {
+			resultMap.put(org.getOrganisationId(), org);
 		}
 		Assert.assertTrue(resultMap.containsKey(ORG_A_CODE));
 		Assert.assertTrue(resultMap.containsKey(ORG_A_CODE_SUB));
 
-		OrganisationDto orgA = resultMap.get(ORG_A_CODE);
-		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
+		Organisation orgA = resultMap.get(ORG_A_CODE);
+		Assert.assertEquals(ORG_A_CODE, orgA.getOrganisationId());
 		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
-		Assert.assertNull(orgA.getParentCode());
+		Assert.assertNull(orgA.getParentOrganisationCode());
 		
-		OrganisationDto subOrg = resultMap.get(ORG_A_CODE_SUB);
-		Assert.assertEquals(ORG_A_CODE_SUB, subOrg.getCode());
-		Assert.assertEquals(orgA.getCode(), subOrg.getParentCode());
+		Organisation subOrg = resultMap.get(ORG_A_CODE_SUB);
+		Assert.assertEquals(ORG_A_CODE_SUB, subOrg.getOrganisationId());
+		Assert.assertEquals(orgA.getOrganisationId(), subOrg.getParentOrganisationCode());
 	}
 
 	@Test
@@ -135,11 +135,11 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		
 		// When
-		OrganisationDto orgA = subject.findOrganisationFromCode(ORG_A_CODE);
+		Organisation orgA = subject.findOrganisationFromCode(ORG_A_CODE);
 		
 		// Then
 		Assert.assertNotNull(orgA);
-		Assert.assertEquals(ORG_A_CODE, orgA.getCode());
+		Assert.assertEquals(ORG_A_CODE, orgA.getOrganisationId());
 		Assert.assertEquals("Organisationen kaldet æøå&/%", orgA.getName());
 	}
 
@@ -150,12 +150,12 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		
 		// When
-		OrganisationDto subOrgA = subject.findOrganisationFromCode(ORG_A_CODE_SUB);
+		Organisation subOrgA = subject.findOrganisationFromCode(ORG_A_CODE_SUB);
 		
 		// Then
 		Assert.assertNotNull(subOrgA);
-		Assert.assertEquals(ORG_A_CODE_SUB, subOrgA.getCode());
-		Assert.assertEquals(ORG_A_CODE, subOrgA.getParentCode());
+		Assert.assertEquals(ORG_A_CODE_SUB, subOrgA.getOrganisationId());
+		Assert.assertEquals(ORG_A_CODE, subOrgA.getParentOrganisationCode());
 	}
 
 	@Test
@@ -165,13 +165,13 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userFromOrgBContext, organisationDao);
 		
 		// When
-		List<OrganisationDto> organisations = subject.findOrganisations();
+		List<Organisation> organisations = subject.findOrganisations();
 		
 		// Then
 		Assert.assertNotNull(organisations);
 		Assert.assertEquals(1, organisations.size());
-		Assert.assertEquals(ORG_B_CODE, organisations.get(0).getCode());
-		Assert.assertNull(organisations.get(0).getParentCode());
+		Assert.assertEquals(ORG_B_CODE, organisations.get(0).getOrganisationId());
+		Assert.assertNull(organisations.get(0).getParentOrganisationCode());
 	}
 	
 	@Test
@@ -181,7 +181,7 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		subject = new FindOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		
 		// When
-		List<OrganisationDto> organisations = subject.findOrganisations();
+		List<Organisation> organisations = subject.findOrganisations();
 		
 		// Then
 		Assert.assertNotNull(organisations);
