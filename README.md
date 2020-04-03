@@ -46,7 +46,7 @@ For at afvikle integrationstest mod servicen kørende i en container aktiverer d
 Dette er standard måden når du bygger med maven og også sådan testen afvikles hvis du debugger en test i dit favorit IDE.  
 
 
-**Anvendelse af Swagger UI som testklient
+## Anvendelse af Swagger UI som testklient
 Der ligger et docker-compose setup i documentation/docker/compose
 Dette anvender altid latest af de pushede docker images for medcom-vdx-organisation og dennes dokumentation medcom-vdx-organisation-documentation
 Hvorefter dokomentationen kan anvendes [Swagger UI](http://localhost:8080/test/).
