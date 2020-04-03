@@ -28,19 +28,27 @@ pipeline {
                 }
             }
         }
-        stage('Tag Docker Image And Push') {
+        stage('Tag Docker Images And Push') {
             steps {
                 script {
-                    docker.withRegistry('https://kitdocker.kvalitetsit.dk/') {
-                        image = docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}")
-                        image.push("${env.GIT_COMMIT}")
-                        image.push("dev")
+                    image = docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}")
+                    image.push("${env.GIT_COMMIT}")
+                    image.push("dev")
 
-                        if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
-                            echo "Tagging version"
-                            image.push(env.TAG_NAME.substring(1))
-                            image.push("latest")
-                        }
+                    if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
+                        echo "Tagging version"
+                        image.push(env.TAG_NAME.substring(1))
+                        image.push("latest")
+                    }
+
+                    docimage = docker.image("kvalitetsit/medcom-vdx-organisation-documentation:${env.GIT_COMMIT}")
+                    docimage.push("${env.GIT_COMMIT}")
+                    docimage.push("dev")
+
+                    if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
+                        echo "Tagging version"
+                        docimage.push(env.TAG_NAME.substring(1))
+                        docimage.push("latest")
                     }
                 }
             }

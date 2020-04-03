@@ -7,6 +7,11 @@ services:
       - MYSQL_DATABASE=organisationdb
       - MYSQL_USER=orguser
       - MYSQL_PASSWORD=secret1234
+     healthcheck:
+      test: mysql --user=orguser --password=secret1234 -e 'show databases;'
+      interval: 2s
+      timeout: 2s
+      retries: 10
    testfrontend:
      image: kvalitetsit/gooioidwsrest:1.1.14
      command:
@@ -17,7 +22,7 @@ services:
      ports:
       - 8080:80
    organisationservice:
-     image: kvalitetsit/medcom-vdx-organisation:dev
+     image: kvalitetsit/medcom-vdx-organisation:latest
      environment:
       - jdbc_url=jdbc:mysql://mysql:3306/organisationdb
       - jdbc_user=orguser
@@ -31,10 +36,12 @@ services:
       - userrole_user_values=userrole1,userrole2
       - userrole_monitor_values=monitorrole
       - userrole_provisioner_values=provisionerrole
+     depends_on:
+      mysql:
+       condition: service_healthy
    documenatation-and-test:
-     image: kvalitetsit/medcom-vdx-organisation-documentation:dev
+     image: kvalitetsit/medcom-vdx-organisation-documentation:latest
      environment:
       - BASE_URL=/test
-      - SWAGGER_JSON=/documentation/organisationservice.yaml
      ports:
       - 80:8080
