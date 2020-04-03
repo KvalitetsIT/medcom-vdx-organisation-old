@@ -17,6 +17,7 @@ import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.exceptions.BadRequestException;
+import dk.medcom.vdx.organisation.exceptions.DataIntegretyException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
@@ -71,7 +72,7 @@ public class OrganisationController {
 	
 	@APISecurityAnnotation({ UserRole.ADMIN, UserRole.PROVISIONER })
 	@RequestMapping(value = "/services/organisation", method = RequestMethod.PUT)
-	public OrganisationDto updateOrganisation(/*@Valid*/ @RequestBody OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+	public OrganisationDto updateOrganisation(/*@Valid*/ @RequestBody OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException, DataIntegretyException {
 		LOGGER.debug("Enter updateOrganisation(toUpdate: "+toUpdate+")");
 		try {
 			Organisation organisation = createOrUpdateOrganisationService.updateOrganisation(toUpdate);

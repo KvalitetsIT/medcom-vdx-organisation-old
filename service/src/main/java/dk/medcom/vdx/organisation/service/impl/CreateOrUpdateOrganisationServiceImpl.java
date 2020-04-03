@@ -12,6 +12,7 @@ import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.exceptions.BadRequestException;
+import dk.medcom.vdx.organisation.exceptions.DataIntegretyException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.service.CreateOrUpdateOrganisationService;
@@ -32,7 +33,7 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 	}
 
 	@Override
-	public Organisation updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+	public Organisation updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException, DataIntegretyException {
 		
 		List<Organisation> newAncestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toUpdate);
 		
@@ -43,16 +44,31 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 			throw new RessourceNotFoundException(message);
 		}
 
-		// Check if the user belongs to the right organisations
+		// Check if the user belongs to the right organisations for a legal update
 		String userOrganisation = userContextService.getOrganisation();
 		boolean updateIsOk = noOrganisation(userOrganisation);
 
-		boolean movingTheOrganisationInTheTree = (toUpdate.getParentCode() == null || toUpdate.getParentCode().strip().length() == 0 ? (orgToUpdate.getParentOrganisationCode() != null) : (orgToUpdate.getParentOrganisationCode() != null && toUpdate.getParentCode().compareTo(orgToUpdate.getParentOrganisationCode()) != 0));
+		String newParentCode = (toUpdate.getParentCode() != null ? toUpdate.getParentCode().strip() : "");
+		String oldParentCode = (orgToUpdate.getParentOrganisationCode() != null ? orgToUpdate.getParentOrganisationCode() : "");
+		boolean movingTheOrganisationInTheTree = !newParentCode.contentEquals(oldParentCode);
 		List<Organisation> oldAncestorsOrderedByDistanceClosestFirst = null;
 		if (movingTheOrganisationInTheTree || !updateIsOk) {
 			oldAncestorsOrderedByDistanceClosestFirst = organisationDao.findAncestorsOrderedByDistanceClosestFirst(orgToUpdate.getParentOrganisationId());
 		}
 
+		// Check that we are not moving a node to its own subnode
+		if (movingTheOrganisationInTheTree && newAncestorsOrderedByDistanceClosestFirst != null) {
+
+			for (Organisation newAncestor : newAncestorsOrderedByDistanceClosestFirst) {
+				if (newAncestor.getId().equals(orgToUpdate.getId())) {
+					String message = "The organisation identified by '"+toUpdate.getCode()+"' cannot be moved to its own suborganisation '"+toUpdate.getParentCode()+"'";
+					LOGGER.info(message);
+					throw new DataIntegretyException(message);
+				}
+			}
+			
+		}
+		
 		if (!updateIsOk) {
 			updateIsOk = isOrganisationPartOfOrganisation(userOrganisation, orgToUpdate.getOrganisationId()) || isOrganisationPartOfAnyOrganisation(userOrganisation, oldAncestorsOrderedByDistanceClosestFirst);
 			
