@@ -10,12 +10,11 @@ Til udviklingsformål anvendes følgende værktøjer:
 * Docker (version 16+)
 
 medcom-vdx-organisation er bygge op af følgende moduler
-* medcom-vdx-organisation-interface: Interfaceklasser til Organisations API'et
-* medcom-vdx-organisation-service: Organisations API'et services, forretningslogik
-* medcom-vdx-organisation-web: Organisations API'et passes som Spring Boot Web applikation i Docker
-* medcom-vdx-organisation-documentation: OpenAPI 3.0 dokumentation for Organisations API'et og generering af testklientkode
-* medcom-vdx-organisation-integrationtest: Opstart af Organisations API'et (i Docker) og afvikling af integrationstests baseret på klientkode fra medcom-vdx-organisation-documentation
-* medcom-vdx-organisation-qa: Samlet Jacoco testrapport (herunder codecoverage)
+* service: Organisations API'et services, interfaces og forretningslogik
+* web: Organisations API'et passes som Spring Boot Web applikation i Docker
+* documentation: OpenAPI 3.0 dokumentation for Organisations API'et og generering af testklientkode
+* integrationtest: Opstart af Organisations API'et (i Docker) og afvikling af integrationstests baseret på klientkode fra medcom-vdx-organisation-documentation
+* qa: Samlet Jacoco testrapport (herunder codecoverage)
 
 ## Udvikling af snitflader i Organisationservice
 
@@ -45,3 +44,9 @@ For at afvikle integrationstest mod servicen kørende i en container aktiverer d
 **Service startes som Spring Boot applikation**
 
 Dette er standard måden når du bygger med maven og også sådan testen afvikles hvis du debugger en test i dit favorit IDE.  
+
+
+**Anvendelse af Swagger UI som testklient
+Der ligger et docker-compose setup i documentation/docker/compose
+Dette anvender altid latest af de pushede docker images for medcom-vdx-organisation og dennes dokumentation medcom-vdx-organisation-documentation
+Hvorefter dokomentationen kan anvendes [Swagger UI](http://localhost:8080/test/).
