@@ -133,6 +133,50 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 		// Then
 	}
 
+	@Test
+	public void testThatASubTreeCanBeMovedToBeANewRoot() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {
+
+		// Given
+		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		OrganisationDto toUpdate = new OrganisationDto();
+		toUpdate.setCode("u21");
+		toUpdate.setName("Not important");
+		toUpdate.setPoolSize(200);
+		toUpdate.setParentCode(null);
+
+		// When
+		Organisation updated = subject.updateOrganisation(toUpdate);
+		
+		// Then
+		Assert.assertNotNull(updated);
+		Assert.assertEquals(toUpdate.getCode(), updated.getOrganisationId());
+		Assert.assertEquals(toUpdate.getName(), updated.getName());
+		Assert.assertEquals(toUpdate.getPoolSize(), updated.getPoolSize().intValue());
+		Assert.assertNull(updated.getParentOrganisationCode());
+		Assert.assertNull(updated.getParentOrganisationId());
+	}
+
+	@Test
+	public void testThatASubTreeCanBeMovedToAnotherOrg() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {
+
+		// Given
+		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		OrganisationDto toUpdate = new OrganisationDto();
+		toUpdate.setCode("u21");
+		toUpdate.setName("Not important");
+		toUpdate.setPoolSize(200);
+		toUpdate.setParentCode(ORG_A_CODE_SUB);
+
+		// When
+		Organisation updated = subject.updateOrganisation(toUpdate);
+		
+		// Then
+		Assert.assertNotNull(updated);
+		Assert.assertEquals(toUpdate.getCode(), updated.getOrganisationId());
+		Assert.assertEquals(toUpdate.getName(), updated.getName());
+		Assert.assertEquals(toUpdate.getPoolSize(), updated.getPoolSize().intValue());
+		Assert.assertEquals(toUpdate.getParentCode(), updated.getParentOrganisationCode());
+	}
 
 	@Test
 	public void testThatUserWithNoOrgCanUpdateA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {

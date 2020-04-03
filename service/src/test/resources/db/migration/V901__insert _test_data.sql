@@ -22,3 +22,23 @@ INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (8, 
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (9, 9, 0);
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (10, 10, 0);
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (10, 8, 1);
+
+
+INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (11, 'u1', 'u1', 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (11, 11, 0);
+INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (12, 'u2', 'u2', 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (12, 12, 0);
+INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (13, 'u21', 'u21', 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (13, 13, 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (13, 12, 1);
+INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (14, 'u211', 'u211', 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (14, 14, 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (14, 13, 1);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (14, 12, 2);
+INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (15, 'u212', 'u212', 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (15, 15, 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (15, 13, 1);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (15, 12, 2);
+INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (16, 'u22', 'u22', 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (16, 16, 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (16, 12, 1);

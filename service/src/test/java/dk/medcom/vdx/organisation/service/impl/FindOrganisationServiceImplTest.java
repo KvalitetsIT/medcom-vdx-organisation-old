@@ -185,6 +185,6 @@ public class FindOrganisationServiceImplTest extends RepositoryTest {
 		
 		// Then
 		Assert.assertNotNull(organisations);
-		Assert.assertTrue(organisations.size() == 10);
+		Assert.assertEquals(16, organisations.size());
 	}
 }

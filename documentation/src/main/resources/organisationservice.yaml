@@ -81,8 +81,8 @@ paths:
           $ref: '#/components/responses/403'      
         '404':
           $ref: '#/components/responses/404'      
-        '406':
-          $ref: '#/components/responses/406'              
+        '409':
+          $ref: '#/components/responses/409'              
     post:
       tags:
         - Organisation
