@@ -11,5 +11,7 @@ public interface CreateOrUpdateOrganisationService {
 
 	Organisation updateOrganisation(OrganisationDto toUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException, DataIntegretyException;
 	
-	Organisation createOrganisation(OrganisationDto createUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException;
+	Organisation createOrganisation(OrganisationDto createUpdate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException, DataIntegretyException;
+
+	void deleteOrganisationWithCode(String code) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException;
 }

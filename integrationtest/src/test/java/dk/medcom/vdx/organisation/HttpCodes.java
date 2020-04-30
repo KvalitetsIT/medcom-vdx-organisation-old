@@ -6,4 +6,6 @@ public class HttpCodes {
 	
 	public static int CONFLICT = 409;
 
+	public static int NOT_FOUND = 404;
+
 }
