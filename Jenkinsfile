@@ -24,13 +24,6 @@ pipeline {
         }
       }
 
-//     agent {
-//         kubernetes {
-//            containers: [containerTemplate(image: 'docker', name: 'docker', command: 'cat', ttyEnabled: true)],
-//            volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
-//         }
-//     }
-
     stages {
         stage('Initialize') {
             steps{
@@ -49,7 +42,7 @@ pipeline {
 
                     def maven = docker.image('maven:3-jdk-11')
                     maven.pull()
-                    maven.inside("--volumes-from medcom-vdx-organisation-resources") {
+                    maven.inside("--volumes-from medcom-vdx-organisation-resources -v /var/run/docker.sock:/var/run/docker.sock") {
                         sh 'mvn install -Pdocker-test'
                     }
 
