@@ -1,6 +1,7 @@
 pipeline {
       agent {
         kubernetes {
+          defaultContainer 'docker'
           yaml """
     apiVersion: v1
     kind: Pod
@@ -14,11 +15,12 @@ pipeline {
         command:
         - cat
         tty: true
+        volumeMounts:
+          - name: docker-sock
+            mountPath: /var/run/docker.sock
       volumes:
-      - name: docker
+      - name: docker-sock
         hostPath:
-          path: /var/run/docker.sock
-        mountPath:
           path: /var/run/docker.sock
     """
         }
@@ -47,31 +49,33 @@ pipeline {
                     }
 
                     junit '**/target/surefire-reports/*.xml,**/target/failsafe-reports/*.xml'
-                    jacoco changeBuildStatus: true, maximumLineCoverage: '80', minimumLineCoverage: '60', exclusionPattern: '**/org/openapitools/**/*.*'
+//                    jacoco changeBuildStatus: true, maximumLineCoverage: '80', minimumLineCoverage: '60', exclusionPattern: '**/org/openapitools/**/*.*'
                 }
             }
         }
         stage('Tag Docker Images And Push') {
             steps {
                 script {
-                    image = docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}")
-                    image.push("${env.GIT_COMMIT}")
-                    image.push("dev")
+                    docker.withRegistry('','dockerhub') {
+                        image = docker.image("kvalitetsit/medcom-vdx-organisation:${env.GIT_COMMIT}")
+                        image.push("${env.GIT_COMMIT}")
+                        image.push("dev")
 
-                    if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
-                        echo "Tagging version"
-                        image.push(env.TAG_NAME.substring(1))
-                        image.push("latest")
-                    }
+                        if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
+                            echo "Tagging version"
+                            image.push(env.TAG_NAME.substring(1))
+                            image.push("latest")
+                        }
 
-                    docimage = docker.image("kvalitetsit/medcom-vdx-organisation-documentation:${env.GIT_COMMIT}")
-                    docimage.push("${env.GIT_COMMIT}")
-                    docimage.push("dev")
+                        docimage = docker.image("kvalitetsit/medcom-vdx-organisation-documentation:${env.GIT_COMMIT}")
+                        docimage.push("${env.GIT_COMMIT}")
+                        docimage.push("dev")
 
-                    if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
-                        echo "Tagging version"
-                        docimage.push(env.TAG_NAME.substring(1))
-                        docimage.push("latest")
+                        if(env.TAG_NAME != null && env.TAG_NAME.matches("^v[0-9]*\\.[0-9]*\\.[0-9]*")) {
+                            echo "Tagging version"
+                            docimage.push(env.TAG_NAME.substring(1))
+                            docimage.push("latest")
+                        }
                     }
                 }
             }
