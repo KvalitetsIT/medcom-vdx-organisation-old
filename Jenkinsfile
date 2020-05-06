@@ -1,10 +1,32 @@
 pipeline {
-    agent {
+      agent {
         kubernetes {
-           containers: [containerTemplate(image: 'docker', name: 'docker', command: 'cat', ttyEnabled: true)],
-           volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
+          yaml """
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        some-label: some-label-value
+    spec:
+      containers:
+      - name: docker
+        image: docker
+        command:
+        - cat
+        tty: true
+      volumes:
+      - hostPath: /var/run/docker.sock
+        mountPath: /var/run/docker.sock
+    """
         }
-    }
+      }
+
+//     agent {
+//         kubernetes {
+//            containers: [containerTemplate(image: 'docker', name: 'docker', command: 'cat', ttyEnabled: true)],
+//            volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
+//         }
+//     }
 
     stages {
         stage('Initialize') {
