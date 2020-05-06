@@ -1,10 +1,17 @@
 openapi: 3.0.0
 info:
   title: VDX Organisation API
-  description: API description for the VDX Organisation interface
+  description: API description for the VDX Organisation interface<br><br><h3>Changelog:</h3>
   version: "1.0.0"
   contact:
     email: development@kvalitetitsit.dk
+tags:
+  - name: Organisation
+    description: Read, search, create, and update operations for Organisations
+  - name: Organisationtree
+    description: Search operations for the hierarchy of Organisations
+  - name: Info
+    description: Technical information regarding the service
 servers:
   - url: '{protocol}://{environment}:{port}'
     variables:
@@ -109,7 +116,9 @@ paths:
         '403':
           $ref: '#/components/responses/403'      
         '404':
-          $ref: '#/components/responses/404'      
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'          
   /services/organisation/{code}:
     get:
       tags:

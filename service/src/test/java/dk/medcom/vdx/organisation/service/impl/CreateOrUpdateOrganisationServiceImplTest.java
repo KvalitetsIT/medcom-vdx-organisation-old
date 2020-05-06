@@ -17,6 +17,7 @@ import dk.medcom.vdx.organisation.exceptions.DataIntegretyException;
 import dk.medcom.vdx.organisation.exceptions.PermissionDeniedException;
 import dk.medcom.vdx.organisation.exceptions.RessourceNotFoundException;
 import dk.medcom.vdx.organisation.repository.RepositoryTest;
+import dk.medcom.vdx.organisation.service.FindOrganisationService;
 
 public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 
@@ -24,6 +25,8 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 	static final String ORG_B_CODE = "org-b";
 	static final String ORG_A_CODE_SUB = "sub-org-a";
 
+
+	static final String ORG_PREVIOUSLY_DELETED = "deleted-2";
 
 	UserContextService userWithNoOrganisationContext;
 	UserContextService userFromOrgAContext;
@@ -72,11 +75,53 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 	}
 
 	@Test
-	public void testThatUserWithNoOrgACanCreateNewToplevelOrganisation() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserWithNoOrgACanCreateNewToplevelOrganisation() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {
 
 		// Given
 		final String NEW_NAME = "Name";
 		final String NEW_CODE = "123orgtest87654";
+		final int NEW_POOL_SIZE = 100;
+		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		OrganisationDto toCreate = new OrganisationDto();
+		toCreate.setCode(NEW_CODE);
+		toCreate.setName(NEW_NAME);
+		toCreate.setPoolSize(NEW_POOL_SIZE);
+
+		// When
+		Organisation newOrg = subject.createOrganisation(toCreate); 
+
+		// Then
+		Assert.assertNotNull(newOrg);
+		Assert.assertEquals(NEW_CODE, newOrg.getOrganisationId());
+		Assert.assertEquals(NEW_NAME, newOrg.getName());
+		Assert.assertEquals(NEW_POOL_SIZE, newOrg.getPoolSize().intValue());
+	}
+
+	@Test(expected = DataIntegretyException.class)
+	public void testThatDuplicateOrganisationCodesCannotBeCreated() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {
+
+		// Given
+		final String NEW_NAME = "Name";
+		final String NEW_CODE = ORG_A_CODE;
+		final int NEW_POOL_SIZE = 100;
+		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
+		OrganisationDto toCreate = new OrganisationDto();
+		toCreate.setCode(NEW_CODE);
+		toCreate.setName(NEW_NAME);
+		toCreate.setPoolSize(NEW_POOL_SIZE);
+
+		// When
+		subject.createOrganisation(toCreate); 
+		
+		// Then
+	}
+
+	@Test
+	public void testThatUserWithNoOrgACanCreateNewToplevelOrganisationWithACodeThatWasPreviouslyDeleted() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {
+
+		// Given
+		final String NEW_NAME = "Name";
+		final String NEW_CODE = ORG_PREVIOUSLY_DELETED;
 		final int NEW_POOL_SIZE = 100;
 		subject = new CreateOrUpdateOrganisationServiceImpl(userWithNoOrganisationContext, organisationDao);
 		OrganisationDto toCreate = new OrganisationDto();
@@ -239,7 +284,7 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 	}
 
 	@Test(expected = PermissionDeniedException.class)
-	public void testThatUserFromOrgBCannotCreateNewOrgUnderOrgA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserFromOrgBCannotCreateNewOrgUnderOrgA() throws Exception {
 
 		// Given
 		final String NEW_NAME = "New fancy name";
@@ -257,7 +302,7 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 	}
 
 	@Test
-	public void testThatUserFromOrgBCanCreateNewOrgUnderOrgB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserFromOrgBCanCreateNewOrgUnderOrgB() throws Exception {
 
 		// Given
 		final String NEW_NAME = "New fancy name";
@@ -280,7 +325,7 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 	}
 
 	@Test
-	public void testThatUserFromNoOrgCanCreateNewOrgUnderOrgB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+	public void testThatUserFromNoOrgCanCreateNewOrgUnderOrgB() throws Exception {
 
 		// Given
 		final String NEW_NAME = "New fancy name";
@@ -301,4 +346,37 @@ public class CreateOrUpdateOrganisationServiceImplTest extends RepositoryTest {
 		Assert.assertEquals(toCreate.getPoolSize(), newOrg.getPoolSize().intValue());
 		Assert.assertEquals(ORG_B_CODE, newOrg.getParentOrganisationCode());
 	}
+	
+	@Test
+	public void testThatUserFromOrgBCanDeleteOrgB() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+
+		// Given
+		subject = new CreateOrUpdateOrganisationServiceImpl(userFromOrgBContext, organisationDao);
+		FindOrganisationService find = new FindOrganisationServiceImpl(userFromOrgBContext, organisationDao);
+
+		// When
+		subject.deleteOrganisationWithCode(ORG_B_CODE);
+		List<Organisation> organisations = find.findOrganisations();
+
+		// Then
+		Assert.assertNotNull(organisations);
+		Assert.assertEquals(0, organisations.size());
+	}
+	
+	@Test
+	public void testThatUserFromOrgACanDeleteTheSubOrgForA() throws PermissionDeniedException, RessourceNotFoundException, BadRequestException, DataIntegretyException {
+
+		// Given
+		subject = new CreateOrUpdateOrganisationServiceImpl(userFromOrgAContext, organisationDao);
+		FindOrganisationService find = new FindOrganisationServiceImpl(userFromOrgAContext, organisationDao);
+
+		// When
+		subject.deleteOrganisationWithCode(ORG_A_CODE_SUB);
+		List<Organisation> organisations = find.findOrganisations();
+
+		// Then
+		Assert.assertNotNull(organisations);
+		Assert.assertEquals(1, organisations.size());
+	}
+
 }

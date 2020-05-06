@@ -57,10 +57,21 @@ public class OrganisationController {
 			LOGGER.debug("Done getOrganisation(code: "+code+")");
 		}
 	}
-	
+
+	@APISecurityAnnotation({ UserRole.ADMIN, UserRole.PROVISIONER })
+	@RequestMapping(value = "/services/organisation/{code}", method = RequestMethod.DELETE)
+	public void deleteOrganisation(@PathVariable("code")String code) throws PermissionDeniedException, RessourceNotFoundException, BadRequestException {
+		LOGGER.debug("Enter deleteOrganisation(code: "+code+")");
+		try {
+			createOrUpdateOrganisationService.deleteOrganisationWithCode(code);
+		} finally {
+			LOGGER.debug("Done deleteOrganisation(code: "+code+")");
+		}
+	}
+
 	@APISecurityAnnotation({ UserRole.ADMIN, UserRole.PROVISIONER })
 	@RequestMapping(value = "/services/organisation", method = RequestMethod.POST)
-	public OrganisationDto createOrganisation(/*@Valid*/ @RequestBody OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+	public OrganisationDto createOrganisation(/*@Valid*/ @RequestBody OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException, DataIntegretyException {
 		LOGGER.debug("Enter createOrganisation(toCreate: "+toCreate+")");
 		try {
 			Organisation organisation = createOrUpdateOrganisationService.createOrganisation(toCreate);

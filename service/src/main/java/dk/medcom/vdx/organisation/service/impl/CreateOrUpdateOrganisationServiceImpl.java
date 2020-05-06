@@ -92,7 +92,7 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 	}
 	
 	@Override
-	public Organisation createOrganisation(OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+	public Organisation createOrganisation(OrganisationDto toCreate) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException, DataIntegretyException {
 
 		List<Organisation> ancestorsOrderedByDistanceClosestFirst = validateOrganisationInput(toCreate);
 		
@@ -105,6 +105,33 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		
 		Organisation created = organisationDao.createOrganisation(ancestorsOrderedByDistanceClosestFirst, toCreate.getCode(), toCreate.getName(), toCreate.getPoolSize());
 		return created;
+	}
+
+	@Override
+	public void deleteOrganisationWithCode(String codeToDelete) throws PermissionDeniedException, BadRequestException, RessourceNotFoundException {
+		if (codeToDelete == null || codeToDelete.length() == 0) {
+			String message = "Deleting an organisation must be identified by 'code'";
+			LOGGER.info(message);
+			throw new BadRequestException(message);
+		}
+		
+		Organisation orgToDelete = organisationDao.findByOrganisationCode(codeToDelete);
+		if (orgToDelete == null) {
+			String message = "The code: "+codeToDelete+" does not identify an organisation";
+			LOGGER.info(message);
+			throw new RessourceNotFoundException(message);
+		}
+		
+		String userOrganisation = userContextService.getOrganisation();
+		List<Organisation> parents = organisationDao.findAncestorsOrderedByDistanceClosestFirst(orgToDelete.getId());
+		if (!noOrganisation(userOrganisation) && !isOrganisationPartOfOrganisation(userOrganisation, codeToDelete) && !isOrganisationPartOfAnyOrganisation(userOrganisation, parents)) {
+			String message = "The user does not have access to the organisation identified by '"+codeToDelete+"'";
+			LOGGER.info(message);
+			throw new PermissionDeniedException(message);
+		}
+		
+		organisationDao.deleteOrganisation(orgToDelete);
+		
 	}
 
 	private List<Organisation> validateOrganisationInput(OrganisationDto input) throws BadRequestException, RessourceNotFoundException {
@@ -138,4 +165,5 @@ public class CreateOrUpdateOrganisationServiceImpl extends AbstractOrganisationS
 		}
 		return null;
 	}
+
 }

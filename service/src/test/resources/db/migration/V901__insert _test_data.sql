@@ -9,6 +9,8 @@ INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (7, 'pool
 INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (8, 'org-a', 'Organisationen kaldet æøå&/%', 0);
 INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (9, 'org-b', 'Organisationen kaldet B', 0);
 INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (10, 'sub-org-a', 'Organisationen nnder a', 0);
+INSERT INTO organisation (id, organisation_id, name, deleted_at) VALUES (100, 'deleted-1', 'was deleted', current_timestamp); 
+INSERT INTO organisation (id, organisation_id, name, deleted_at) VALUES (101, 'deleted-2', 'was deleted', current_timestamp); 
 
 
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (1, 1, 0);
@@ -23,6 +25,9 @@ INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (9, 
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (10, 10, 0);
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (10, 8, 1);
 
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (100, 100, 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (101, 101, 0);
+INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (101, 8, 1);
 
 INSERT INTO organisation (id, organisation_id, name, pool_size) VALUES (11, 'u1', 'u1', 0);
 INSERT INTO org_hierarchy (organisation_id, parent_org_id, distance) values (11, 11, 0);

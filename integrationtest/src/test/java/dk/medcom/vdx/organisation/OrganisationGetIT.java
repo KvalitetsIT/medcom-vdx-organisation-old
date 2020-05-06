@@ -94,7 +94,6 @@ public class OrganisationGetIT extends AbstractIntegrationTest {
 		
 		Set<String> codes = new HashSet<String>();
 		for (Organisation org : orgs) {
-			System.out.println("************************ "+org.getCode());
 			codes.add(org.getCode());
 		}
 		

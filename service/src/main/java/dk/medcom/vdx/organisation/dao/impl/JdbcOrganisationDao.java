@@ -1,5 +1,8 @@
 package dk.medcom.vdx.organisation.dao.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +10,9 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,9 +22,15 @@ import org.springframework.stereotype.Repository;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.dao.rowmappers.OrganisationRowMapper;
+import dk.medcom.vdx.organisation.exceptions.DataIntegretyException;
 
 @Repository
 public class JdbcOrganisationDao implements OrganisationDao {
+
+	private static Logger LOGGER = LoggerFactory.getLogger(JdbcOrganisationDao.class);
+
+	private static final String NOT_DELETED = "1970-01-01 00:00:01";  // Not deleted - we have a not null constraint on deleted_at
+	private final Date NOT_DELETED_DATE;
 
 	private DataSource dataSource;
 
@@ -26,6 +38,11 @@ public class JdbcOrganisationDao implements OrganisationDao {
 
 	public JdbcOrganisationDao(DataSource dataSource) {
 		this.dataSource = dataSource;
+		try {
+			NOT_DELETED_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(NOT_DELETED+" +0000"); // the 'datetime' type is always UTC in the database
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -35,7 +52,8 @@ public class JdbcOrganisationDao implements OrganisationDao {
 					+ "from organisation as o "
 					+ "  left join org_hierarchy as h on o.id = h.organisation_id and h.distance = 1 "
 					+ "  left join organisation p on h.parent_org_id = p.id "
-					+ "    where o.organisation_id = :code";
+					+ "    where o.organisation_id = :code"
+					+ "      and o.deleted_at = '"+NOT_DELETED+"'";
 			//		var sql = "select o.* from organisation as o where o.organisation_id = :code";
 			NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 			return template.queryForObject(sql, new MapSqlParameterSource("code", organisationCode), organisationRowMapper);
@@ -53,7 +71,8 @@ public class JdbcOrganisationDao implements OrganisationDao {
 				+ "   join organisation as o on o.id = h.organisation_id"  
 				+ "   left join org_hierarchy as h2 on o.id = h2.organisation_id and h2.distance = 1"
 				+ "   left join organisation p on h2.parent_org_id = p.id "
-				+ "where s.organisation_id = :code";
+				+ "where s.organisation_id = :code "
+				+ "  and o.deleted_at = '"+NOT_DELETED+"'";
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 		return template.query(sql, new MapSqlParameterSource("code", organisationCode), organisationRowMapper);
 	}
@@ -63,7 +82,8 @@ public class JdbcOrganisationDao implements OrganisationDao {
 		var sql = "select o.*, p.id, p.organisation_id "
 				+ "from organisation as o "
 				+ "  left join org_hierarchy as h on o.id = h.organisation_id and h.distance = 1 "
-				+ "  left join organisation p on h.parent_org_id = p.id";
+				+ "  left join organisation p on h.parent_org_id = p.id "
+				+ "where o.deleted_at = '"+NOT_DELETED+"'";
 		NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
 		return template.query(sql, organisationRowMapper);
 	}
@@ -74,7 +94,8 @@ public class JdbcOrganisationDao implements OrganisationDao {
 				+ "from organisation as o "
 				+ "  left join org_hierarchy as h on o.id = h.organisation_id and h.distance = 1 "
 				+ "  left join organisation p on h.parent_org_id = p.id "
-				+ "where o.pool_size > 0";
+				+ "where o.pool_size > 0 "
+				+ "  and o.deleted_at = '"+NOT_DELETED+"'"; // Not deleted
 		var template = new NamedParameterJdbcTemplate(dataSource);
 		return template.query(sql, organisationRowMapper);
 	}
@@ -128,35 +149,43 @@ public class JdbcOrganisationDao implements OrganisationDao {
 	}
 
 	@Override
-	public Organisation createOrganisation(List<Organisation> parentOrganisationsOrderedByDistance, String organisationCode, String organisationName, int poolSize) {
-		SimpleJdbcInsert template = new SimpleJdbcInsert(dataSource).withTableName("organisation").usingGeneratedKeyColumns("id");
-		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put("organisation_id", organisationCode);
-		parameterMap.put("pool_size", poolSize);
-		parameterMap.put("name", organisationName);
-		Number createdId = template.executeAndReturnKey(new MapSqlParameterSource(parameterMap));
+	public Organisation createOrganisation(List<Organisation> parentOrganisationsOrderedByDistance, String organisationCode, String organisationName, int poolSize) throws DataIntegretyException {
+		try {
+			SimpleJdbcInsert template = new SimpleJdbcInsert(dataSource).withTableName("organisation").usingGeneratedKeyColumns("id");
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
+			parameterMap.put("organisation_id", organisationCode);
+			parameterMap.put("pool_size", poolSize);
+			parameterMap.put("name", organisationName);
+			parameterMap.put("deleted_at", NOT_DELETED_DATE);
+			Number createdId = template.executeAndReturnKey(new MapSqlParameterSource(parameterMap));
 
-		// Create the hierarchy (point to oneself and to all parents)
-		SimpleJdbcInsert insertHierarchyPointToMyself = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
-		Map<String, Object> insertHierarchyMyselfparameterMap = new HashMap<String, Object>();
-		insertHierarchyMyselfparameterMap.put("organisation_id", createdId.longValue());
-		insertHierarchyMyselfparameterMap.put("parent_org_id", createdId.longValue());
-		insertHierarchyMyselfparameterMap.put("distance", 0);
-		insertHierarchyPointToMyself.execute(new MapSqlParameterSource(insertHierarchyMyselfparameterMap));
+			// Create the hierarchy (point to oneself and to all parents)
+			SimpleJdbcInsert insertHierarchyPointToMyself = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
+			Map<String, Object> insertHierarchyMyselfparameterMap = new HashMap<String, Object>();
+			insertHierarchyMyselfparameterMap.put("organisation_id", createdId.longValue());
+			insertHierarchyMyselfparameterMap.put("parent_org_id", createdId.longValue());
+			insertHierarchyMyselfparameterMap.put("distance", 0);		
+			insertHierarchyPointToMyself.execute(new MapSqlParameterSource(insertHierarchyMyselfparameterMap));
 
-		if (parentOrganisationsOrderedByDistance != null) {
-			for (int i = 0; i < parentOrganisationsOrderedByDistance.size(); i++) {
-				SimpleJdbcInsert insertHierarchyPointToAncestor = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
-				Map<String, Object> insertHierarchyPointToAncestorParameterMap = new HashMap<String, Object>();
-				insertHierarchyPointToAncestorParameterMap.put("organisation_id", createdId.longValue());
-				insertHierarchyPointToAncestorParameterMap.put("parent_org_id", parentOrganisationsOrderedByDistance.get(i).getId());
-				insertHierarchyPointToAncestorParameterMap.put("distance", i+1);
-				insertHierarchyPointToAncestor.execute(new MapSqlParameterSource(insertHierarchyPointToAncestorParameterMap));
+			if (parentOrganisationsOrderedByDistance != null) {
+				for (int i = 0; i < parentOrganisationsOrderedByDistance.size(); i++) {
+					SimpleJdbcInsert insertHierarchyPointToAncestor = new SimpleJdbcInsert(dataSource).withTableName("org_hierarchy");
+					Map<String, Object> insertHierarchyPointToAncestorParameterMap = new HashMap<String, Object>();
+					insertHierarchyPointToAncestorParameterMap.put("organisation_id", createdId.longValue());
+					insertHierarchyPointToAncestorParameterMap.put("parent_org_id", parentOrganisationsOrderedByDistance.get(i).getId());
+					insertHierarchyPointToAncestorParameterMap.put("distance", i+1);
+					insertHierarchyPointToAncestor.execute(new MapSqlParameterSource(insertHierarchyPointToAncestorParameterMap));
+				}
 			}
-		}
 
-		Organisation created = findByOrganisationCode(organisationCode);
-		return created;
+			Organisation created = findByOrganisationCode(organisationCode);
+			return created;
+		} catch (DuplicateKeyException e) {
+			String message = "Organisation by code '"+organisationCode+"' already exists";
+			LOGGER.debug(message, e);
+			DataIntegretyException die = new DataIntegretyException(message);
+			throw die;
+		}
 	}
 
 	@Override
@@ -170,5 +199,19 @@ public class JdbcOrganisationDao implements OrganisationDao {
 				+ "  order by h.distance asc";
 		var template = new NamedParameterJdbcTemplate(dataSource);
 		return template.query(sql, new MapSqlParameterSource("orgId", organisationId), organisationRowMapper);
+	}
+
+	@Override
+	public void deleteOrganisation(Organisation orgToDelete) {
+		
+		NamedParameterJdbcTemplate updateOrganisationsTemplate = new NamedParameterJdbcTemplate(dataSource);
+		Map<String, Object> updateOrganisationsMap = new HashMap<String, Object>();
+		updateOrganisationsMap.put("id", orgToDelete.getId());
+		updateOrganisationsTemplate.update(
+				"update organisation as o "
+				+ "   join org_hierarchy as h on o.id = h.organisation_id"  
+				+ "   join organisation as p on p.id = h.parent_org_id "  
+				+ "set o.deleted_at = now() " // Delete by setting this datetime
+				+ "where p.id = :id", updateOrganisationsMap);
 	}
 }

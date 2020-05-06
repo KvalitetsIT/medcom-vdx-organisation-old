@@ -3,6 +3,7 @@ package dk.medcom.vdx.organisation.dao;
 import java.util.List;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
+import dk.medcom.vdx.organisation.exceptions.DataIntegretyException;
 
 public interface OrganisationDao {
 
@@ -18,5 +19,7 @@ public interface OrganisationDao {
 	
 	Organisation updateOrganisationWithCode(String organisationCode, String organisationName, int poolSize, List<Organisation> newAncestorsOrderedByDistanceClosestFirst, List<Organisation> oldAncestorsOrderedByDistanceClosestFirst);
 
-	Organisation createOrganisation(List<Organisation> ancestorsOrderedByDistanceClosestFirst, String organisationCode, String organisationName, int poolSize);
+	Organisation createOrganisation(List<Organisation> ancestorsOrderedByDistanceClosestFirst, String organisationCode, String organisationName, int poolSize) throws DataIntegretyException;
+
+	void deleteOrganisation(Organisation orgToDelete);
 }
