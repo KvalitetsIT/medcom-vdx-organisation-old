@@ -13,7 +13,6 @@ import javax.servlet.http.HttpFilter;
 import java.util.List;
 
 @Configuration
-@PropertySource("actuator.properties")
 @PropertySource(value = "git.properties", ignoreResourceNotFound = true)
 public class ActuatorConfiguration {
     @Bean
@@ -23,10 +22,5 @@ public class ActuatorConfiguration {
         filterRegistrationBean.addUrlPatterns("/actuator/*");
 
         return filterRegistrationBean;
-    }
-
-    @Bean
-    public VersionInfoContributor versionInfo(@Value("${git.commit.id.describe:#{null}}")String commit, @Value("${git.tags:#{null}}") List<String> tags) {
-        return new VersionInfoContributor(commit, tags);
     }
 }

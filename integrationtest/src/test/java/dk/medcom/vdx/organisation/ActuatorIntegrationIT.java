@@ -9,6 +9,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.UriBuilder;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ActuatorIntegrationIT extends AbstractIntegrationTest {
 	@Test
@@ -24,6 +25,15 @@ public class ActuatorIntegrationIT extends AbstractIntegrationTest {
 		assertNotNull(result);
 	}
 
+	@Test
+	public void testPrometheusConnection(){
+		var path = getClient("/actuator/prometheus");
+		var result = path.request().get(String.class);
+		assertNotNull(result);
+		assertTrue(result.contains("application_information"));
+	}
+
+
 	@Test(expected = ForbiddenException.class)
 	@Ignore
 	public void testOtherRoleDoesNotGiveAccess() {
@@ -37,10 +47,9 @@ public class ActuatorIntegrationIT extends AbstractIntegrationTest {
 				.get(String.class);
 	}
 
-
 	private WebTarget getClient(String path) {
 		WebTarget target = ClientBuilder.newClient()
-				.target(UriBuilder.fromUri(getApiBasePath() + path));
+				.target(UriBuilder.fromUri(getActuatorPrometheusBasePath() + path));
 
 		return target;
 	}

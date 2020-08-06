@@ -12,6 +12,9 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.OrganisationApi;
 import org.openapitools.client.model.Organisation;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 
 public class OrganisationGetIT extends AbstractIntegrationTest {
 
@@ -114,4 +117,5 @@ public class OrganisationGetIT extends AbstractIntegrationTest {
 		Assert.assertNotNull(org);
 		Assert.assertEquals(org.getCode(), TEST_ORGANISATION_A);
 	}
+
 }

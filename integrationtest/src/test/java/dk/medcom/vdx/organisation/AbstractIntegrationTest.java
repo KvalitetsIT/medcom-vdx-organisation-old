@@ -12,6 +12,9 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.UriBuilder;
 import java.util.Base64;
 import java.util.Collections;
 
@@ -38,6 +41,7 @@ public class AbstractIntegrationTest {
 	private static Network dockerNetwork;
 	
 	private static String apiBasePath;
+	private static String actuatorPrometheusBasePath;
 	private static GenericContainer organisationService;
 
 	static {
@@ -120,18 +124,21 @@ public class AbstractIntegrationTest {
 
 					.withEnv("LOG_LEVEL", "DEBUG")
 
-					.withExposedPorts(8080)
+					.withExposedPorts(8080, 8081)
 					.waitingFor(Wait.forHttp("/temp").forStatusCode(404)); //TODO: Bruge info-url
 			organisationService.start();
 			attachLogger(organisationService, organisationLogger);
 
 			apiBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8080);
+			actuatorPrometheusBasePath = "http://"+organisationService.getContainerIpAddress()+":"+organisationService.getMappedPort(8081);
+
 		}
 		else {
 			String jdbcUrl = mysql.getJdbcUrl();
 			System.setProperty("jdbc.url", jdbcUrl);
 			SpringApplication.run(Application.class);
 			apiBasePath = "http://localhost:8080";
+			actuatorPrometheusBasePath = "http://localhost:8081";
 		}
 	}
 
@@ -153,6 +160,10 @@ public class AbstractIntegrationTest {
 
 	protected String getApiBasePath() {
 		return apiBasePath;
+	}
+
+	protected String getActuatorPrometheusBasePath(){
+		return actuatorPrometheusBasePath;
 	}
 
 	protected void setUserContext(ApiClient apiClient, String[] roles) {

@@ -21,8 +21,13 @@
 
 		<!-- Actuator so it possible to get metrics -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
+			<groupId>dk.medcom.vdx</groupId>
+			<artifactId>app-info</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dk.kvalitetsit</groupId>
+			<artifactId>spring-prometheus-app-info</artifactId>
 		</dependency>
 
 		<dependency>
