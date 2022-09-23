@@ -13,7 +13,7 @@
 	</parent>
 	<properties>
 		<jacoco.version>0.8.4</jacoco.version>
-		<testcontainers.version>1.12.3</testcontainers.version>
+		<testcontainers.version>1.17.3</testcontainers.version>
 		<spring-prometheus-app-info-version>0.0.5</spring-prometheus-app-info-version>
 	</properties>
 	<dependencyManagement>
@@ -31,7 +31,7 @@
 			<dependency>
 				<groupId>org.mock-server</groupId>
 				<artifactId>mockserver-client-java</artifactId>
-				<version>3.12</version>
+				<version>5.14.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.flywaydb</groupId>
