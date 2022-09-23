@@ -12,7 +12,7 @@
 		<version>2.2.5.RELEASE</version>
 	</parent>
 	<properties>
-		<jacoco.version>0.8.4</jacoco.version>
+		<jacoco.version>0.8.8</jacoco.version>
 		<testcontainers.version>1.17.3</testcontainers.version>
 		<spring-prometheus-app-info-version>0.0.5</spring-prometheus-app-info-version>
 	</properties>
