@@ -7,20 +7,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.UriBuilder;
 import java.util.Base64;
 import java.util.Collections;
 
 public class AbstractIntegrationTest {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTest.class);
-	private static final Logger mysqlLogger = LoggerFactory.getLogger("mysql");
+	private static final Logger mariaDbLogger = LoggerFactory.getLogger("mariadb");
 	private static final Logger organisationLogger = LoggerFactory.getLogger("organisation");
 
 	public static final String TEST_AUTH_HEADER = "X-Test-Auth";
@@ -63,27 +60,27 @@ public class AbstractIntegrationTest {
 		if (dockerNetwork == null) {
 			dockerNetwork = Network.newNetwork();
 
-			var mysql = setupDatabaseContainer();
+			var mariaDb = setupDatabaseContainer();
 
-			setupOrganisationService(mysql);
+			setupOrganisationService(mariaDb);
 		}
 	}
 
-	private static MySQLContainer setupDatabaseContainer() {
+	private static MariaDBContainer setupDatabaseContainer() {
 		// Database server for Organisation.
-		MySQLContainer mysql = (MySQLContainer) new MySQLContainer("mysql:5.7")
+		MariaDBContainer mariadb = (MariaDBContainer) new MariaDBContainer("mariadb:10.6")
 				.withDatabaseName("organisationdb")
 				.withUsername("orguser")
 				.withPassword("secret1234")
 				.withNetwork(dockerNetwork)
-				.withNetworkAliases("mysql");
-		mysql.start();
-		attachLogger(mysql, mysqlLogger);
+				.withNetworkAliases("mariadb");
+		mariadb.start();
+		attachLogger(mariadb, mariaDbLogger);
 
-		return mysql;
+		return mariadb;
 	}
 
-	private static void setupOrganisationService(MySQLContainer mysql) {
+	private static void setupOrganisationService(MariaDBContainer mariaDb) {
 		var runInDocker = Boolean.getBoolean("runInDocker");
 		logger.info("Running integration test in docker container: " + runInDocker);
 
@@ -107,7 +104,7 @@ public class AbstractIntegrationTest {
 
 			organisationService.withNetwork(dockerNetwork)
 					.withNetworkAliases("organisation")
-					.withEnv("jdbc_url", "jdbc:mysql://mysql:3306/organisationdb")
+					.withEnv("jdbc_url", "jdbc:mariadb://mariadb:3306/organisationdb")
 					.withEnv("jdbc_user", "orguser")
 					.withEnv("jdbc_pass", "secret1234")
 
@@ -134,7 +131,7 @@ public class AbstractIntegrationTest {
 
 		}
 		else {
-			String jdbcUrl = mysql.getJdbcUrl();
+			String jdbcUrl = mariaDb.getJdbcUrl();
 			System.setProperty("jdbc.url", jdbcUrl);
 			SpringApplication.run(Application.class);
 			apiBasePath = "http://localhost:8080";

@@ -11,9 +11,6 @@ public class OrganisationRowMapper implements RowMapper<Organisation>{
 
 	@Override
 	public Organisation mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        if(resultSet.wasNull()) {
-        	return null;
-        }
         var organisation = new Organisation();
         organisation.setId(resultSet.getLong("o.id"));
         organisation.setOrganisationId(resultSet.getString("o.organisation_id"));

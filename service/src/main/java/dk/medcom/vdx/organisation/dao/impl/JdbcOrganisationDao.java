@@ -27,19 +27,19 @@ import dk.medcom.vdx.organisation.exceptions.DataIntegretyException;
 @Repository
 public class JdbcOrganisationDao implements OrganisationDao {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(JdbcOrganisationDao.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JdbcOrganisationDao.class);
 
 	private static final String NOT_DELETED = "1970-01-01 00:00:01";  // Not deleted - we have a not null constraint on deleted_at
 	private final Date NOT_DELETED_DATE;
 
-	private DataSource dataSource;
+	private final DataSource dataSource;
 
 	private OrganisationRowMapper organisationRowMapper = new OrganisationRowMapper();
 
 	public JdbcOrganisationDao(DataSource dataSource) {
 		this.dataSource = dataSource;
 		try {
-			NOT_DELETED_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse(NOT_DELETED+" +0000"); // the 'datetime' type is always UTC in the database
+			NOT_DELETED_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(NOT_DELETED); // the 'datetime' type is always UTC in the database
 		} catch (ParseException e) {
 			throw new RuntimeException(e);
 		}
