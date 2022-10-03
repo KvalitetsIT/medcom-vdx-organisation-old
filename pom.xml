@@ -36,7 +36,7 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>6.3.1</version>
+				<version>9.4.0</version>
 			</dependency>
 			<!-- logback json encoder -->
 			<dependency>
